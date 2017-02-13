@@ -15,5 +15,5 @@ echo :: Building Piccolo...
 go build^
     -v^
     -ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=%GIT_VERSION% -X github.com/shawnsilva/piccolo/version.gitBranch=%GIT_BRANCH%"^
-    -o build\piccolo.exe cmd\piccolo\main.go
+    -o build\piccolo.exe cmd\piccolo\piccolo.go
 if errorlevel 1 exit /B 1

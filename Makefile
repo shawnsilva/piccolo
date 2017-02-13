@@ -12,7 +12,7 @@ deps:
 
 # Build piccolo using your current systems architecture as the target
 build: deps
-	go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/main.go
+	go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
 
 buildAll: deps
 	env GOOS=linux GOARCH=amd64 go build -v ${LDFLAGS} -o build/linux_amd64/${BINARY} cmd/piccolo/main.go
@@ -31,7 +31,7 @@ docker:
 	docker build --tag "shawnsilva/piccolo:latest" --tag "shawnsilva/piccolo:${GIT_VERSION}" .
 
 install: deps
-	go install ${LDFLAGS} -o ${BINARY}
+	go install ${LDFLAGS} github.com/shawnsilva/piccolo/cmd/piccolo
 
 test: deps
 	go test -v -race ./...
