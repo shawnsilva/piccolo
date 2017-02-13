@@ -1,0 +1,25 @@
+{
+    "bot_token": "",
+    "owner_id": "",
+    "google_api_key": "",
+    "bind_to_text_channels": [
+        "none"
+    ],
+    "auto_join_voice_channels": [
+        "none"
+    ],
+    "command_prefix": "!",
+    "bot": {
+        "volume": 0.35,
+        "ytdl_path": "",
+        "save_videos": true,
+        "cache_dir": "video_cache",
+        "use_playlist": true,
+        "auto_pause": true,
+        "delete_messages": false,
+        "delete_invoking_messages": false,
+        "now_playing_mentions": true,
+        "skips_required": 4,
+        "skip_ratio": 0.5
+    }
+}
