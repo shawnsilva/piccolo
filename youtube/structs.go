@@ -1,8 +1,9 @@
 package youtube
 
 type (
+	// Manager is used to initialize a youtube object with needed config.
 	Manager struct {
-		ApiKey     string
+		APIKey     string
 		YtDlPath   string
 		YTCacheDir string
 	}
@@ -13,7 +14,8 @@ type (
 		Height float64 `json:"height"`
 	}
 
-	YoutubeSearchResult struct {
+	// SearchResult is use for json unmarshalling a Youtube search result.
+	SearchResult struct {
 		Kind string `json:"kind"`
 		Etag string `json:"etag"`
 		ID   struct {
@@ -37,24 +39,26 @@ type (
 		} `json:"snippet"`
 	}
 
-	YoutubeSearchListResponse struct {
+	// SearchListResponse is used for json unmarshalling a Youtube search
+	// result
+	SearchListResponse struct {
 		Kind          string `json:"kind"`
 		Etag          string `json:"etag"`
 		NextPageToken string `json:"nextPageToken"`
 		PrevPageToken string `json:"prevPageToken"`
-		RegionCode    string `json:"regionCode`
+		RegionCode    string `json:"regionCode"`
 		PageInfo      struct {
 			TotalResults   float64 `json:"totalResults"`
 			ResultsPerPage float64 `json:"resutlsPerPage"`
 		} `json:"pageInfo"`
-		Items []YoutubeSearchResult `json:"items"`
+		Items []SearchResult `json:"items"`
 	}
 
-	VideoFormatInfo map[string]string
-	YoutubeVideo    struct {
-		ID      string
-		Title   string
-		Url     string
-		Formats []VideoFormatInfo
-	}
+	// VideoFormatInfo map[string]string
+	// YoutubeVideo    struct {
+	// 	ID      string
+	// 	Title   string
+	// 	Url     string
+	// 	Formats []VideoFormatInfo
+	// }
 )

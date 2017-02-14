@@ -9,10 +9,12 @@ import (
 )
 
 type (
-	VersionInfo struct {
+	// Info is used to store application version information. After being
+	// initialized, ParseVersion must be run to populate the information.
+	Info struct {
 		version            string
 		numCommitsSinceTag int
-		commitId           string
+		commitID           string
 		isDirty            bool
 		release            string
 		releaseCandidate   int
@@ -26,82 +28,95 @@ var (
 	gitBranch  string
 )
 
-func (v *VersionInfo) setVersion(version string) {
+func (v *Info) setVersion(version string) {
 	v.version = version
 }
 
-func (v VersionInfo) GetDotVersion() string {
+// GetDotVersion returns a string of the application version, "0.0.0", if it
+// has one (requires a tag that represents a version.)
+func (v Info) GetDotVersion() string {
 	return v.version
 }
 
-func (v *VersionInfo) setCommitId(commitId string) {
-	v.commitId = commitId
+func (v *Info) setcommitID(commitID string) {
+	v.commitID = commitID
 }
 
-func (v VersionInfo) GetGitCommit() string {
-	return v.commitId
+// GetGitCommit returns a string for the commit id where this build came from.
+func (v Info) GetGitCommit() string {
+	return v.commitID
 }
 
-func (v *VersionInfo) setNumCommitsSinceTag(numCommits int) {
+func (v *Info) setNumCommitsSinceTag(numCommits int) {
 	v.numCommitsSinceTag = numCommits
 }
 
-func (v VersionInfo) GetNumCommitsSinceTag() int {
+// GetNumCommitsSinceTag will return an int greater than 0 if there have been any
+// commits since the last tag.
+func (v Info) GetNumCommitsSinceTag() int {
 	return v.numCommitsSinceTag
 }
 
-func (v *VersionInfo) setIsDirty(dirty bool) {
+func (v *Info) setIsDirty(dirty bool) {
 	v.isDirty = dirty
 }
 
-func (v VersionInfo) GetIsDirty() bool {
+// GetIsDirty will return true if the git repo had local modification/uncommited
+// changes, otherwise false.
+func (v Info) GetIsDirty() bool {
 	return v.isDirty
 }
 
-func (v *VersionInfo) setRelease(release string) {
+func (v *Info) setRelease(release string) {
 	v.release = release
 }
 
-func (v VersionInfo) GetRelease() string {
+// GetRelease will return a string of either "Dev", "Release", "RC" depending on
+// how the application was built.
+func (v Info) GetRelease() string {
 	return v.release
 }
 
-func (v *VersionInfo) setReleaseCandidate(rc int) {
+func (v *Info) setReleaseCandidate(rc int) {
 	v.releaseCandidate = rc
 }
 
-func (v VersionInfo) GetReleaseCandidate() int {
+// GetReleaseCandidate will return an int greater than 0 if this build is a RC
+// where the value is which RC it is.
+func (v Info) GetReleaseCandidate() int {
 	return v.releaseCandidate
 }
 
-func (v *VersionInfo) setBranch(branch string) {
+func (v *Info) setBranch(branch string) {
 	v.branch = branch
 }
 
-func (v VersionInfo) GetBranch() string {
+// GetBranch returns the string of the branch this application was built from.
+func (v Info) GetBranch() string {
 	return v.branch
 }
 
-func (v *VersionInfo) setDefaultInfo() {
+func (v *Info) setDefaultInfo() {
 	v.setVersion("0.0.0")
-	v.setCommitId("null")
+	v.setcommitID("null")
 	v.setNumCommitsSinceTag(0)
 	v.setIsDirty(true)
 	v.setRelease("Dev")
 	v.setBranch(gitBranch)
 }
 
-func (v *VersionInfo) ParseVersion() {
+// ParseVersion needs to be run to gather the version info and populate the struct.
+func (v *Info) ParseVersion() {
 	v.generateVersion()
 }
 
-func (v *VersionInfo) generateVersion() {
+func (v *Info) generateVersion() {
 	// Git info not supplied in build env, set default development version
 	if gitVersion == "" {
 		v.setDefaultInfo()
 		return
 	}
-	versionRE := regexp.MustCompile(`^(?:v(?P<version>\d\.\d\.\d)(?P<rc>rc\d+)?)?(?:-?(?P<numcommits>[0-9]*))?(?:(?:-?g)?(?P<commit>[0-9a-f]{6,40}))?(?P<dirty>-dirty)?$`)
+	versionRE := regexp.MustCompile(`^(?:v(?P<version>\d\.\d\.\d)(?P<rc>rc\d+)?)?(?:-(?P<numcommits>[0-9]*))?(?:(?:-?g)?(?P<commit>[0-9a-f]{6,40}))?(?P<dirty>-dirty)?$`)
 	versionGroups := utils.REGetNamedGroupsResults(versionRE, gitVersion)
 	// supplied git info didnt contain info needed
 	if len(versionGroups) == 0 {
@@ -119,11 +134,11 @@ func (v *VersionInfo) generateVersion() {
 		}
 	}
 
-	if foundCommitId, ok := versionGroups["commit"]; ok {
-		if foundCommitId != "" {
-			v.setCommitId(foundCommitId)
+	if foundCommitID, ok := versionGroups["commit"]; ok {
+		if foundCommitID != "" {
+			v.setcommitID(foundCommitID)
 		} else {
-			v.setCommitId("")
+			v.setcommitID("")
 		}
 	}
 
@@ -176,7 +191,7 @@ func (v *VersionInfo) generateVersion() {
 	v.setVersionString()
 }
 
-func (v *VersionInfo) setVersionString() {
+func (v *Info) setVersionString() {
 	vl := []string{v.GetRelease(), " ", v.GetDotVersion()}
 	if v.GetRelease() == "RC" {
 		vl = append(vl, string(v.GetReleaseCandidate()))
@@ -193,6 +208,8 @@ func (v *VersionInfo) setVersionString() {
 	v.versionString = utils.StrConcat(vl)
 }
 
-func (v VersionInfo) GetVersionString() string {
+// GetVersionString returns a formatted string of the Info struct for the
+// version information in the application.
+func (v Info) GetVersionString() string {
 	return v.versionString
 }

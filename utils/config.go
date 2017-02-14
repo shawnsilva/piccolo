@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 )
 
+// BotConfig is used to the the bot specific configuration.
 type BotConfig struct {
 	Volume                 float64 `json:"volume"`
 	YtDlPath               string  `json:"ytdl_path"`
@@ -20,10 +21,11 @@ type BotConfig struct {
 	SkipRatio              float64 `json:"skip_ratio"`
 }
 
+// Config is used to store the application configuration.
 type Config struct {
 	BotToken              string    `json:"bot_token"`
-	OwnerId               string    `json:"owner_id"`
-	GoogleApiKey          string    `json:"google_api_key"`
+	OwnerID               string    `json:"owner_id"`
+	GoogleAPIKey          string    `json:"google_api_key"`
 	BindToTextChannels    []string  `json:"bind_to_text_channels"`
 	AutoJoinVoiceChannels []string  `json:"auto_join_voice_channels"`
 	CommandPrefix         string    `json:"command_prefix"`
@@ -51,6 +53,9 @@ var (
 	}
 )
 
+// ParseConfigFile takes a string for a filename and attempts to load it and
+// unmarshal the json inside. If successful, returns a pointer to a Config object,
+// otherwise returns an error.
 func ParseConfigFile(filename string) (*Config, error) {
 	configContents, err := ioutil.ReadFile(filepath.FromSlash(filename))
 	if err != nil {
@@ -61,6 +66,9 @@ func ParseConfigFile(filename string) (*Config, error) {
 	return &conf, err
 }
 
+// DumpConfigFormat will write out a sample config with the default values. It
+// be written to the path of the filename string supplied. Returns an error if
+// one is encountered.
 func DumpConfigFormat(filename string) error {
 	jsonConf, _ := json.MarshalIndent(defaultConfig, "", "    ")
 	err := ioutil.WriteFile(filepath.FromSlash(filename), jsonConf, 0644)

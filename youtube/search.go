@@ -9,28 +9,30 @@ import (
 	"github.com/shawnsilva/piccolo/log"
 )
 
-func (yt Manager) createSearchUrl(searchString string) (*string, error) {
-	searchUrl, err := url.Parse("https://www.googleapis.com/youtube/v3/search")
+func (yt Manager) createSearchURL(searchString string) (*string, error) {
+	searchURL, err := url.Parse("https://www.googleapis.com/youtube/v3/search")
 	if err != nil {
 		return nil, err
 	}
 	searchParameters := url.Values{}
 	searchParameters.Add("part", "snippet")
 	searchParameters.Add("q", searchString)
-	searchParameters.Add("key", yt.ApiKey)
+	searchParameters.Add("key", yt.APIKey)
 
-	searchUrl.RawQuery = searchParameters.Encode()
-	searchStr := searchUrl.String()
+	searchURL.RawQuery = searchParameters.Encode()
+	searchStr := searchURL.String()
 	return &searchStr, nil
 }
 
-func (yt Manager) Search(searchStr string) (YoutubeSearchListResponse, error) {
-	var searchResponse YoutubeSearchListResponse
-	searchUrl, err := yt.createSearchUrl(searchStr)
+// Search takes a string input and searches youtube for results. Search returns a
+// YoutubeSearchListResponse with the results.
+func (yt Manager) Search(searchStr string) (SearchListResponse, error) {
+	var searchResponse SearchListResponse
+	searchURL, err := yt.createSearchURL(searchStr)
 	if err != nil {
 		return searchResponse, err
 	}
-	resp, err := http.Get(*searchUrl)
+	resp, err := http.Get(*searchURL)
 	if err != nil {
 		log.Printf("[WARN] Error searching: %s", err)
 		return searchResponse, err
@@ -45,8 +47,10 @@ func (yt Manager) Search(searchStr string) (YoutubeSearchListResponse, error) {
 	return searchResponse, nil
 }
 
-func (yt Manager) SearchFirstResult(searchStr string) (YoutubeSearchResult, error) {
-	var searchResult YoutubeSearchResult
+// SearchFirstResult takes a string input and searches youtube, returning only
+// the first result in a YoutubeSearchResult
+func (yt Manager) SearchFirstResult(searchStr string) (SearchResult, error) {
+	var searchResult SearchResult
 	searchResponseList, err := yt.Search(searchStr)
 	if err != nil {
 		return searchResult, err

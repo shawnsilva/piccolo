@@ -8,7 +8,10 @@ import (
 	"github.com/shawnsilva/piccolo/log"
 )
 
-func HttpDownloadToString(url string, desc string) (string, error) {
+// HTTPDownloadToString takes a string of a URL, and attempts to download the
+// data, if successful it is converted to a string and returned, otherwise an
+// empty string is returned with an error.
+func HTTPDownloadToString(url string, desc string) (string, error) {
 	log.Printf("[INFO] Downloading: %s", desc)
 	resp, err := http.Get(url)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path"
 	"path/filepath"
 
 	"github.com/shawnsilva/piccolo/log"
@@ -19,7 +20,7 @@ var (
 	flagDumpConfigFormat = flag.Bool("dumpconf", false, "If enabled, piccolo will dump a sample config file and exit. Uses config as path.")
 	flagVersion          = flag.Bool("version", false, "Print the version and exit.")
 
-	appVersion = version.VersionInfo{}
+	appVersion = version.Info{}
 	conf       *utils.Config
 	yt         *youtube.Manager
 )
@@ -68,6 +69,20 @@ func init() {
 }
 
 func main() {
+
+	yt = &youtube.Manager{
+		APIKey:     conf.GoogleAPIKey,
+		YtDlPath:   conf.Bot.YtDlPath,
+		YTCacheDir: path.Join(filepath.ToSlash(conf.Bot.CacheDir), "/", "ytdl"),
+	}
+
+	// resp, err := yt.SearchFirstResult("MHnVJtw_xcw")
+	// if err != nil {
+	// 	fmt.Println("error searching")
+	// } else {
+	// 	yt.DownloadAudio(resp.ID.VideoID)
+	// }
+	yt.DownloadAudio("MHnVJtw_xcw")
 
 	sigIntChannel := make(chan os.Signal, 1)
 	cleanupDoneChannel := make(chan bool)

@@ -1,0 +1,7 @@
+version: "3"
+
+services:
+    piccolo:
+        image: shawnsilva/piccolo:latest
+        volumes:
+            - ./conf:/opt/piccolo/conf:ro
