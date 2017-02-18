@@ -13,3 +13,14 @@ func StrConcat(strings []string) string {
 	}
 	return buffer.String()
 }
+
+// StringInSlice takes a string and a slice and returns true if the string is
+// in the slice, false otherwise
+func StringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}

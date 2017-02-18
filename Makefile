@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := defaultTarget
+
 # Name of the resulting binary
 BINARY=piccolo
 
@@ -7,12 +9,23 @@ GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 # Create -ldflags for go build, inject Git version info
 LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
 
+GO_PKG_FILES=$(shell go list ./... | grep -v vendor)
+
+defaultTarget: clean deps fmt lint vet test build
+
 deps:
-	go get -v ./...
+	@echo
+	@echo "Installing go dependencies..."
+	@echo
+	@go get -v ${GO_PKG_FILES}
+	@go get github.com/golang/lint/golint
 
 # Build piccolo using your current systems architecture as the target
 build: deps
-	go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
+	@echo
+	@echo "Building..."
+	@echo
+	@go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
 
 buildAll: deps
 	env GOOS=linux GOARCH=amd64 go build -v ${LDFLAGS} -o build/linux_amd64/${BINARY} cmd/piccolo/main.go
@@ -34,10 +47,34 @@ install: deps
 	go install ${LDFLAGS} github.com/shawnsilva/piccolo/cmd/piccolo
 
 test: deps
-	go test -v -race ./...
+	@echo
+	@echo "Running tests..."
+	@echo
+	@go test -v -race -cover ${GO_PKG_FILES}
+
+fmt:
+	@echo
+	@echo "Running gofmt..."
+	@echo
+	@gofmt -d .
+
+lint:
+	@echo
+	@echo "Running golint..."
+	@echo
+	@golint ${GO_PKG_FILES}
+
+vet:
+	@echo
+	@echo "Running go vet..."
+	@echo
+	@go vet ${GO_PKG_FILES}
 
 clean:
-	if [ -f build/${BINARY} ] ; then rm build/${BINARY} ; fi
-	go clean -x ./...
+	@echo
+	@echo "Cleaning..."
+	@echo
+	@if [ -f build/${BINARY} ] ; then rm build/${BINARY} ; fi
+	@go clean -x ${GO_PKG_FILES}
 
-.PHONY: clean build
+.PHONY: clean fmt lint vet

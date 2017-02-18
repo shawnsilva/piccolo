@@ -29,6 +29,7 @@ func init() {
 func Debug(args ...interface{}) {
 	logger.Debug(args...)
 }
+
 // Info will send a log message to the info level.
 func Info(args ...interface{}) {
 	logger.Info(args...)

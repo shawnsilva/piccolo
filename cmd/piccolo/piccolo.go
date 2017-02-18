@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path"
 	"path/filepath"
+	"syscall"
 
 	"github.com/shawnsilva/piccolo/log"
-	_ "github.com/shawnsilva/piccolo/piccolo"
+	"github.com/shawnsilva/piccolo/piccolo"
 	"github.com/shawnsilva/piccolo/utils"
 	"github.com/shawnsilva/piccolo/version"
-	"github.com/shawnsilva/piccolo/youtube"
 )
 
 var (
@@ -22,7 +21,7 @@ var (
 
 	appVersion = version.Info{}
 	conf       *utils.Config
-	yt         *youtube.Manager
+	bot        *piccolo.Bot
 )
 
 func usage() {
@@ -59,38 +58,31 @@ func init() {
 		os.Exit(0)
 	}
 
-	conf, err = utils.ParseConfigFile(*flagConfigFile)
+	conf, err = utils.LoadConfig(*flagConfigFile)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"configFile": *flagConfigFile,
 			"error":      err,
-		}).Fatal("Error Parsing Config File.")
+		}).Fatal("Error Loading Config.")
+	}
+
+	bot = &piccolo.Bot{
+		Conf: conf,
 	}
 }
 
 func main() {
 
-	yt = &youtube.Manager{
-		APIKey:     conf.GoogleAPIKey,
-		YtDlPath:   conf.Bot.YtDlPath,
-		YTCacheDir: path.Join(filepath.ToSlash(conf.Bot.CacheDir), "/", "ytdl"),
-	}
-
-	// resp, err := yt.SearchFirstResult("MHnVJtw_xcw")
-	// if err != nil {
-	// 	fmt.Println("error searching")
-	// } else {
-	// 	yt.DownloadAudio(resp.ID.VideoID)
-	// }
-	yt.DownloadAudio("MHnVJtw_xcw")
+	bot.Start()
 
 	sigIntChannel := make(chan os.Signal, 1)
 	cleanupDoneChannel := make(chan bool)
-	signal.Notify(sigIntChannel, os.Interrupt)
+	signal.Notify(sigIntChannel, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		for _ = range sigIntChannel {
-			fmt.Println("\nReceived CTRL-C(SIGINT), shutting down...")
+			fmt.Println("\nReceived Shutdown Request, shutting down...")
 			// do stuff
+			bot.Stop()
 			cleanupDoneChannel <- true
 		}
 	}()

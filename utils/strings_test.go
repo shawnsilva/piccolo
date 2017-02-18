@@ -10,6 +10,12 @@ type (
 		strings []string
 		answer  string
 	}
+
+	stringInSliceTest struct {
+		strToFind     string
+		listOfStrings []string
+		answer        bool
+	}
 )
 
 var (
@@ -21,6 +27,12 @@ var (
 		{[]string{"how", "many", "strings", "to", "use"}, "howmanystringstouse"},
 		{[]string{"What the ", "!$#", " punk"}, "What the !$# punk"},
 	}
+
+	stringInSliceTestData = []stringInSliceTest{
+		{"bill", []string{"jim", "george", "alice", "bill"}, true},
+		{"Aklc(*)&", []string{"jim", "george", "alice", "bill"}, false},
+		{"Aklc(*)&", []string{"jim", "george", "alice", "bill", "Aklc(*)&"}, true},
+	}
 )
 
 func TestStrConcat(t *testing.T) {
@@ -30,6 +42,19 @@ func TestStrConcat(t *testing.T) {
 			t.Error(
 				"StrConcat of: ", strLists.strings,
 				"Got: ", fmt.Sprintf(`"%s"`, concatResult),
+			)
+		}
+	}
+}
+
+func TestStringInSlice(t *testing.T) {
+	for _, testData := range stringInSliceTestData {
+		findResult := StringInSlice(testData.strToFind, testData.listOfStrings)
+		if findResult != testData.answer {
+			t.Error(
+				"StringInSlice of string: ", testData.strToFind,
+				"In Slice: ", testData.listOfStrings,
+				"Got: ", findResult,
 			)
 		}
 	}

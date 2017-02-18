@@ -108,6 +108,7 @@ func (v *Info) setDefaultInfo() {
 // ParseVersion needs to be run to gather the version info and populate the struct.
 func (v *Info) ParseVersion() {
 	v.generateVersion()
+	v.setVersionString()
 }
 
 func (v *Info) generateVersion() {
@@ -116,7 +117,7 @@ func (v *Info) generateVersion() {
 		v.setDefaultInfo()
 		return
 	}
-	versionRE := regexp.MustCompile(`^(?:v(?P<version>\d\.\d\.\d)(?P<rc>rc\d+)?)?(?:-(?P<numcommits>[0-9]*))?(?:(?:-?g)?(?P<commit>[0-9a-f]{6,40}))?(?P<dirty>-dirty)?$`)
+	versionRE := regexp.MustCompile(`^(?:v(?P<version>\d\.\d\.\d)(?:rc(?P<rc>\d+))?)?(?:-(?P<numcommits>[0-9]*))?(?:(?:-?g)?(?P<commit>[0-9a-f]{6,40}))?(?P<dirty>-dirty)?$`)
 	versionGroups := utils.REGetNamedGroupsResults(versionRE, gitVersion)
 	// supplied git info didnt contain info needed
 	if len(versionGroups) == 0 {
@@ -168,7 +169,7 @@ func (v *Info) generateVersion() {
 		if foundReleaseCandidate != "" {
 			i, err := strconv.Atoi(foundReleaseCandidate)
 			if err != nil {
-				log.Warn("Failed to parse RC in git version info.")
+				log.Warn("Failed to parse RC in git version info: " + foundReleaseCandidate)
 				v.setReleaseCandidate(0)
 			} else {
 				v.setReleaseCandidate(i)
@@ -188,16 +189,19 @@ func (v *Info) generateVersion() {
 			}
 		}
 	}
-	v.setVersionString()
 }
 
 func (v *Info) setVersionString() {
-	vl := []string{v.GetRelease(), " ", v.GetDotVersion()}
+	var vl []string
 	if v.GetRelease() == "RC" {
-		vl = append(vl, string(v.GetReleaseCandidate()))
+		vl = []string{v.GetRelease(), strconv.Itoa(v.GetReleaseCandidate()), " ", v.GetDotVersion()}
+	} else {
+		vl = []string{v.GetRelease(), " ", v.GetDotVersion()}
 	}
 	if v.GetRelease() == "Dev" {
-		vl = append(vl, "-", v.GetGitCommit())
+		if v.GetGitCommit() != "" {
+			vl = append(vl, "-", v.GetGitCommit())
+		}
 		if v.GetIsDirty() {
 			vl = append(vl, "+CHANGES")
 		}

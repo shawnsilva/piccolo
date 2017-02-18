@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -53,16 +54,26 @@ var (
 	}
 )
 
-// ParseConfigFile takes a string for a filename and attempts to load it and
-// unmarshal the json inside. If successful, returns a pointer to a Config object,
+// LoadConfig takes a string for a filename and attempts to load it and
+// unmarshal the json inside. Also, auth tokens are attempted to be found as
+// environment variables. If successful, returns a pointer to a Config object,
 // otherwise returns an error.
-func ParseConfigFile(filename string) (*Config, error) {
+func LoadConfig(filename string) (*Config, error) {
 	configContents, err := ioutil.ReadFile(filepath.FromSlash(filename))
 	if err != nil {
 		return nil, err
 	}
 	conf := defaultConfig
 	json.Unmarshal(configContents, &conf)
+	if os.Getenv("DISCORD_BOT_TOKEN") != "" {
+		conf.BotToken = os.Getenv("DISCORD_BOT_TOKEN")
+	}
+	if os.Getenv("DISCORD_BOT_OWNERID") != "" {
+		conf.OwnerID = os.Getenv("DISCORD_BOT_OWNERID")
+	}
+	if os.Getenv("GOOGLE_API_KEY") != "" {
+		conf.GoogleAPIKey = os.Getenv("GOOGLE_API_KEY")
+	}
 	return &conf, err
 }
 
