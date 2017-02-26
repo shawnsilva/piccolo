@@ -1,10 +1,15 @@
 package piccolo
 
 import (
+	"path"
+	"path/filepath"
+	"strings"
+
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/shawnsilva/piccolo/log"
 	"github.com/shawnsilva/piccolo/utils"
+	"github.com/shawnsilva/piccolo/youtube"
 )
 
 type (
@@ -13,6 +18,9 @@ type (
 		Conf *utils.Config
 
 		dg *discordgo.Session
+
+		rq *requestQueue
+		yt *youtube.Manager
 	}
 )
 
@@ -22,6 +30,13 @@ func (b *Bot) Start() {
 	b.dg, err = discordgo.New("Bot " + b.Conf.BotToken)
 	if err != nil {
 		return
+	}
+
+	b.rq = newRequestQueue()
+	b.yt = &youtube.Manager{
+		APIKey:     b.Conf.GoogleAPIKey,
+		YtDlPath:   b.Conf.Bot.YtDlPath,
+		YTCacheDir: path.Join(filepath.ToSlash(b.Conf.Bot.CacheDir), "/", "ytdl"),
 	}
 
 	b.dg.AddHandler(b.ready)
@@ -45,6 +60,27 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 
 func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if len(b.Conf.BindToTextChannels) == 0 || utils.StringInSlice(m.ChannelID, b.Conf.BindToTextChannels) {
-		log.Info("Message: " + m.Content)
+		if strings.HasPrefix(m.Content, b.Conf.CommandPrefix) {
+			cmdName := strings.Fields(m.Content)[0][len(b.Conf.CommandPrefix):]
+			foundCommand, found := cmdHandler.get(cmdName)
+			if !found {
+				log.WithFields(log.Fields{
+					"cmd": cmdName,
+				}).Error("Failed to find command")
+				return
+			}
+			cmdFunc := *foundCommand
+			cmdFunc(b, m)
+		}
+	}
+}
+
+func (b *Bot) reply(message string, m *discordgo.MessageCreate) {
+	msg, err := b.dg.ChannelMessageSend(m.ChannelID, message)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"msg":   msg,
+			"error": err,
+		}).Error("Failed to send message")
 	}
 }
