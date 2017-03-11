@@ -14,6 +14,7 @@ type BotConfig struct {
 	SaveVideos             bool    `json:"save_videos"`
 	CacheDir               string  `json:"cache_dir"`
 	UsePlaylist            bool    `json:"use_playlist"`
+	PlaylistPath           string  `json:"playlist_path"`
 	AutoPause              bool    `json:"auto_pause"`
 	DeleteMessages         bool    `json:"delete_messages"`
 	DeleteInvokingMessages bool    `json:"delete_invoking_messages"`
@@ -39,6 +40,7 @@ var (
 		SaveVideos:             true,
 		CacheDir:               "video_cache",
 		UsePlaylist:            true,
+		PlaylistPath:           "conf/playlist.json",
 		AutoPause:              true,
 		DeleteMessages:         false,
 		DeleteInvokingMessages: false,

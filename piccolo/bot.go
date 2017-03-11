@@ -17,7 +17,8 @@ type (
 	Bot struct {
 		Conf *utils.Config
 
-		dg *discordgo.Session
+		dg             *discordgo.Session
+		discordGuildID string
 
 		rq *requestQueue
 		yt *youtube.Manager
@@ -41,11 +42,21 @@ func (b *Bot) Start() {
 
 	b.dg.AddHandler(b.ready)
 	b.dg.AddHandler(b.messageCreate)
+	b.dg.AddHandler(b.voiceStateChange)
 
 	err = b.dg.Open()
 	if err != nil {
 		return
 	}
+
+	guilds, err := b.dg.UserGuilds()
+	if err != nil {
+		log.Fatal("Failed to determine connected guild ID")
+	}
+	if len(guilds) != 1 {
+		log.Fatal("Too many guilds")
+	}
+	b.discordGuildID = guilds[0].ID
 }
 
 // Stop will stop the bot
@@ -73,6 +84,26 @@ func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			cmdFunc(b, m)
 		}
 	}
+}
+
+func (b *Bot) voiceStateChange(s *discordgo.Session, v *discordgo.VoiceStateUpdate) {
+	guild, err := b.dg.State.Guild(b.discordGuildID)
+	if err != nil {
+		log.Error("Failed to determine voice state")
+		return
+	}
+	if len(guild.VoiceStates) <= 1 {
+		// pause music, nobody listening
+	}
+	for _, vs := range guild.VoiceStates {
+		if utils.StringInSlice(vs.ChannelID, b.Conf.AutoJoinVoiceChannels) {
+			if vs.UserID != b.dg.State.User.ID {
+				// at least one user, not the bot is in channel
+				return
+			}
+		}
+	}
+	// pause music, nobody listening
 }
 
 func (b *Bot) reply(message string, m *discordgo.MessageCreate) {

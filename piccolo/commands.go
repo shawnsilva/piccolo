@@ -52,7 +52,7 @@ func help(b *Bot, m *discordgo.MessageCreate) {
 	}
 	sort.Strings(cmdList)
 	cmdListStr = fmt.Sprintf("```%s```", utils.StrJoin(cmdList, " "))
-	msg = fmt.Sprintf("<@%s>, **Commands**\n%s", m.Author.ID, cmdListStr)
+	msg = fmt.Sprintf("<@%s>, **Commands**\n%s\n%s", m.Author.ID, cmdListStr, "https://github.com/shawnsilva/piccolo/wiki/Commands")
 	b.reply(msg, m)
 }
 

@@ -18,11 +18,22 @@ type (
 	requestQueue struct {
 		*utils.Queue
 	}
+
+	playlist struct {
+		ordered  *utils.DoubleLinkedList
+		shuffled *utils.DoubleLinkedList
+		current  *utils.Node
+	}
 )
 
 func newRequestQueue() *requestQueue {
 	q := &requestQueue{utils.NewQueue()}
 	return q
+}
+
+func newPlaylist() *playlist {
+	p := &playlist{ordered: utils.NewDoubleLinkedList()}
+	return p
 }
 
 func (q requestQueue) addSong(requester string, id string, title string) {

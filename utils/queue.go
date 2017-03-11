@@ -10,6 +10,7 @@ type (
 		next *queueItem
 	}
 
+	// Queue contains pointers to start and end of a queue, the length, and a lock
 	Queue struct {
 		start  *queueItem
 		end    *queueItem
@@ -18,18 +19,21 @@ type (
 	}
 )
 
+// NewQueue will create a new queue for use.
 func NewQueue() *Queue {
 	q := &Queue{}
 	q.lock = &sync.Mutex{}
 	return q
 }
 
+// Length returns the length of a queue
 func (q *Queue) Length() int {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 	return q.length
 }
 
+// Push adds an item to the end of the queue
 func (q *Queue) Push(item interface{}) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
@@ -46,6 +50,7 @@ func (q *Queue) Push(item interface{}) {
 	q.length++
 }
 
+// Pop will return the first item in the queue, and remove it.
 func (q *Queue) Pop() interface{} {
 	q.lock.Lock()
 	defer q.lock.Unlock()
@@ -65,6 +70,7 @@ func (q *Queue) Pop() interface{} {
 	return n.data
 }
 
+// Look will return the first item in the queue, but not remove it.
 func (q *Queue) Look() interface{} {
 	q.lock.Lock()
 	defer q.lock.Unlock()

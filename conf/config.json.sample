@@ -15,6 +15,7 @@
         "save_videos": true,
         "cache_dir": "video_cache",
         "use_playlist": true,
+        "playlist_path": "conf/playlist.json",
         "auto_pause": true,
         "delete_messages": false,
         "delete_invoking_messages": false,
