@@ -133,7 +133,7 @@ func (l *DoubleLinkedList) InsertAfter(node *Node, newNode *Node) {
 
 // InsertBeginning inserts a new node at the beginning
 func (l *DoubleLinkedList) InsertBeginning(newNode *Node) {
-	if l.head == nil {
+	if l.First() == nil {
 		l.lock.Lock()
 		defer l.lock.Unlock()
 		newNode.lock.Lock()
@@ -144,16 +144,16 @@ func (l *DoubleLinkedList) InsertBeginning(newNode *Node) {
 		newNode.next = nil
 		l.length++
 	} else {
-		l.InsertBefore(l.head, newNode)
+		l.InsertBefore(l.First(), newNode)
 	}
 }
 
 // InsertEnd insterts a new node at the end
 func (l *DoubleLinkedList) InsertEnd(newNode *Node) {
-	if l.tail == nil {
+	if l.Last() == nil {
 		l.InsertBeginning(newNode)
 	} else {
-		l.InsertAfter(l.tail, newNode)
+		l.InsertAfter(l.Last(), newNode)
 	}
 }
 
