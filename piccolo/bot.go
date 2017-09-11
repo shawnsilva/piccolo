@@ -50,7 +50,7 @@ func (b *Bot) Start() {
 		return
 	}
 
-	guilds, err := b.dg.UserGuilds()
+	guilds, err := b.dg.UserGuilds(1, "", "")
 	if err != nil {
 		log.Fatal("Failed to determine connected guild ID")
 	}

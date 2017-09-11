@@ -17,7 +17,8 @@ deps:
 	@echo
 	@echo "Installing go dependencies..."
 	@echo
-	@go get -v ${GO_PKG_FILES}
+	#@go get -v ${GO_PKG_FILES}
+	@dep ensure
 	@go get github.com/golang/lint/golint
 
 # Build piccolo using your current systems architecture as the target
