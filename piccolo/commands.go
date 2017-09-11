@@ -28,6 +28,8 @@ func init() {
 	cmdHandler = &commandHandler{make(commandMap)}
 	cmdHandler.addCommand("help", help)
 	cmdHandler.addCommand("play", play)
+	cmdHandler.addCommand("savePlaylist", savePlaylist)
+	cmdHandler.addCommand("showPlaylist", printPlaylist)
 }
 
 func (h commandHandler) addCommand(name string, c command) {
@@ -67,6 +69,19 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		b.reply(fmt.Sprintf("<@%s> - Sorry, couldn't find a result for: **%s**", m.Author.ID, song), m)
 		return
 	}
-	b.rq.addSong(m.Author.ID, result.ID.VideoID, result.Snippet.Title)
+	b.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
+}
+
+func savePlaylist(b *Bot, m *discordgo.MessageCreate) {
+	err := b.playlist.savePlaylist()
+	if err == nil {
+		b.reply(fmt.Sprintf("<@%s> - Saved current playlist to disk.", m.Author.ID), m)
+	} else {
+		b.reply(fmt.Sprintf("<@%s> - %s.", m.Author.ID, err.Error()), m)
+	}
+}
+
+func printPlaylist(b *Bot, m *discordgo.MessageCreate) {
+	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.playlist), m)
 }

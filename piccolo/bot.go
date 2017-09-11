@@ -20,8 +20,8 @@ type (
 		dg             *discordgo.Session
 		discordGuildID string
 
-		rq *requestQueue
-		yt *youtube.Manager
+		playlist *playlist
+		yt       *youtube.Manager
 	}
 )
 
@@ -33,7 +33,8 @@ func (b *Bot) Start() {
 		return
 	}
 
-	b.rq = newRequestQueue()
+	b.playlist = newPlaylist(b.Conf.Bot.UsePlaylist, b.Conf.Bot.PlaylistPath)
+
 	b.yt = &youtube.Manager{
 		APIKey:     b.Conf.GoogleAPIKey,
 		YtDlPath:   b.Conf.Bot.YtDlPath,

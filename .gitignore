@@ -25,4 +25,6 @@ _testmain.go
 
 build
 config.json
-playlist.txt
+playlist.json
+
+video.go.1

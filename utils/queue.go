@@ -8,6 +8,7 @@ type (
 	queueItem struct {
 		data interface{}
 		next *queueItem
+		lock *sync.Mutex
 	}
 
 	// Queue contains pointers to start and end of a queue, the length, and a lock
@@ -39,11 +40,17 @@ func (q *Queue) Push(item interface{}) {
 	defer q.lock.Unlock()
 
 	n := &queueItem{data: item}
+	n.lock = &sync.Mutex{}
+
+	n.lock.Lock()
+	defer n.lock.Unlock()
 
 	if q.end == nil {
 		q.end = n
 		q.start = n
 	} else {
+		q.end.lock.Lock()
+		defer q.end.lock.Unlock()
 		q.end.next = n
 		q.end = n
 	}
@@ -59,6 +66,9 @@ func (q *Queue) Pop() interface{} {
 		return nil
 	}
 
+	q.start.lock.Lock()
+	defer q.start.lock.Unlock()
+
 	n := q.start
 	q.start = n.next
 
@@ -70,7 +80,7 @@ func (q *Queue) Pop() interface{} {
 	return n.data
 }
 
-// Look will return the first item in the queue, but not remove it.
+// Look will return the first item's data in the queue, but not remove it.
 func (q *Queue) Look() interface{} {
 	q.lock.Lock()
 	defer q.lock.Unlock()
@@ -79,5 +89,27 @@ func (q *Queue) Look() interface{} {
 	if n == nil {
 		return nil
 	}
+	n.lock.Lock()
+	defer n.lock.Unlock()
 	return n.data
+}
+
+// First returns the first queueItem.
+func (q *Queue) First() *queueItem {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
+	return q.start
+}
+
+func (i *queueItem) Next() *queueItem {
+	i.lock.Lock()
+	defer i.lock.Unlock()
+	return i.next
+}
+
+func (i *queueItem) Data() interface{} {
+	i.lock.Lock()
+	defer i.lock.Unlock()
+	return i.data
 }

@@ -129,9 +129,9 @@ func TestDoubleLinkedListConcurrenyLength(t *testing.T) {
 	}()
 	wg.Wait()
 	totalLength := dllTestData.length + dllTestData2.length + dllTestData3.length + dllTestData4.length
-	if dll.length != totalLength {
+	if dll.Length() != totalLength {
 		t.Error(
-			"New List Length of: ", dll.length,
+			"New List Length of: ", dll.Length(),
 			"Should be: ", totalLength,
 		)
 	}
@@ -156,9 +156,9 @@ func TestDoubleLinkedListLength(t *testing.T) {
 		dll.InsertAfter(dll.Last().Prev().Prev(), nNode)
 	}
 	totalLength := dllTestData.length + dllTestData2.length + dllTestData3.length + dllTestData4.length
-	if dll.length != totalLength {
+	if dll.Length() != totalLength {
 		t.Error(
-			"New List Length of: ", dll.length,
+			"New List Length of: ", dll.Length(),
 			"Should be: ", totalLength,
 		)
 	}
@@ -166,9 +166,9 @@ func TestDoubleLinkedListLength(t *testing.T) {
 	dll.Delete("7")
 	dll.Remove(dll.First())
 	dll.Remove(dll.Last())
-	if dll.length != totalLength-3 {
+	if dll.Length() != totalLength-3 {
 		t.Error(
-			"List with removed Length of: ", dll.length,
+			"List with removed Length of: ", dll.Length(),
 			"Should be: ", totalLength-3,
 		)
 	}

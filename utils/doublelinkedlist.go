@@ -83,6 +83,13 @@ func (l *DoubleLinkedList) Last() *Node {
 	return l.tail
 }
 
+// Length returns the length of the double linked list
+func (l *DoubleLinkedList) Length() int {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	return l.length
+}
+
 // InsertBefore inserts a new node before a node
 func (l *DoubleLinkedList) InsertBefore(node *Node, newNode *Node) {
 	l.lock.Lock()
