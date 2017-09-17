@@ -27,6 +27,7 @@ var (
 func init() {
 	cmdHandler = &commandHandler{make(commandMap)}
 	cmdHandler.addCommand("help", help)
+	cmdHandler.addCommand("version", botVersion)
 	cmdHandler.addCommand("play", play)
 	cmdHandler.addCommand("savePlaylist", savePlaylist)
 	cmdHandler.addCommand("showPlaylist", printPlaylist)
@@ -50,11 +51,16 @@ func help(b *Bot, m *discordgo.MessageCreate) {
 	var cmdListStr string
 	var cmdList []string
 	for cmdN := range cmdHandler.getAllCommands() {
-		cmdList = append(cmdList, b.Conf.CommandPrefix+cmdN)
+		cmdList = append(cmdList, b.conf.CommandPrefix+cmdN)
 	}
 	sort.Strings(cmdList)
 	cmdListStr = fmt.Sprintf("```%s```", utils.StrJoin(cmdList, " "))
 	msg = fmt.Sprintf("<@%s>, **Commands**\n%s\n%s", m.Author.ID, cmdListStr, "https://github.com/shawnsilva/piccolo/wiki/Commands")
+	b.reply(msg, m)
+}
+
+func botVersion(b *Bot, m *discordgo.MessageCreate) {
+	msg := fmt.Sprintf("<@%s>, `VERSION: %s`", m.Author.ID, b.version.GetVersionString())
 	b.reply(msg, m)
 }
 
@@ -69,12 +75,12 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		b.reply(fmt.Sprintf("<@%s> - Sorry, couldn't find a result for: **%s**", m.Author.ID, song), m)
 		return
 	}
-	b.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
+	b.player.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
 }
 
 func savePlaylist(b *Bot, m *discordgo.MessageCreate) {
-	err := b.playlist.savePlaylist()
+	err := b.player.playlist.savePlaylist()
 	if err == nil {
 		b.reply(fmt.Sprintf("<@%s> - Saved current playlist to disk.", m.Author.ID), m)
 	} else {
@@ -83,5 +89,5 @@ func savePlaylist(b *Bot, m *discordgo.MessageCreate) {
 }
 
 func printPlaylist(b *Bot, m *discordgo.MessageCreate) {
-	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.playlist), m)
+	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.player.playlist), m)
 }

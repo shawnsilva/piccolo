@@ -177,6 +177,7 @@ func (p *playlist) nextSong() interface{} {
 					}
 				}
 				_, songData := p.current.GetData()
+				p.current = p.current.Next()
 				song, ok := songData.(PlaylistEntry)
 				if !ok {
 					continue

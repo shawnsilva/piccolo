@@ -135,6 +135,55 @@ func TestDoubleLinkedListConcurrenyLength(t *testing.T) {
 			"Should be: ", totalLength,
 		)
 	}
+
+	wg.Add(10)
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Delete("3")
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.Last())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Delete("23")
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.Last())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.Last())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.Last())
+	}()
+	wg.Wait()
+	if dll.Length() != totalLength-10 {
+		t.Error(
+			"New List Length of: ", dll.Length(),
+			"Should be: ", totalLength-10,
+		)
+	}
 }
 
 func TestDoubleLinkedListLength(t *testing.T) {

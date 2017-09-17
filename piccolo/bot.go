@@ -9,36 +9,46 @@ import (
 
 	"github.com/shawnsilva/piccolo/log"
 	"github.com/shawnsilva/piccolo/utils"
+	"github.com/shawnsilva/piccolo/version"
 	"github.com/shawnsilva/piccolo/youtube"
 )
 
 type (
 	// Bot holds various config and state of the current bot
 	Bot struct {
-		Conf *utils.Config
-
+		conf           *utils.Config
+		version        *version.Info
 		dg             *discordgo.Session
 		discordGuildID string
 
-		playlist *playlist
-		yt       *youtube.Manager
+		player *player
+		yt     *youtube.Manager
 	}
 )
+
+func NewBot(c *utils.Config, v *version.Info) *Bot {
+	b := &Bot{
+		conf:    c,
+		version: v,
+	}
+	return b
+}
 
 // Start will start the bot
 func (b *Bot) Start() {
 	var err error
-	b.dg, err = discordgo.New("Bot " + b.Conf.BotToken)
+	b.dg, err = discordgo.New("Bot " + b.conf.BotToken)
 	if err != nil {
 		return
 	}
 
-	b.playlist = newPlaylist(b.Conf.Bot.UsePlaylist, b.Conf.Bot.PlaylistPath)
+	// b.playlist = newPlaylist(b.conf.Bot.UsePlaylist, b.conf.Bot.PlaylistPath)
+	b.player = newPlayer(b.conf)
 
 	b.yt = &youtube.Manager{
-		APIKey:     b.Conf.GoogleAPIKey,
-		YtDlPath:   b.Conf.Bot.YtDlPath,
-		YTCacheDir: path.Join(filepath.ToSlash(b.Conf.Bot.CacheDir), "/", "ytdl"),
+		APIKey:     b.conf.GoogleAPIKey,
+		YtDlPath:   b.conf.Bot.YtDlPath,
+		YTCacheDir: path.Join(filepath.ToSlash(b.conf.Bot.CacheDir), "/", "ytdl"),
 	}
 
 	b.dg.AddHandler(b.ready)
@@ -71,9 +81,9 @@ func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
 }
 
 func (b *Bot) messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if len(b.Conf.BindToTextChannels) == 0 || utils.StringInSlice(m.ChannelID, b.Conf.BindToTextChannels) {
-		if strings.HasPrefix(m.Content, b.Conf.CommandPrefix) {
-			cmdName := strings.Fields(m.Content)[0][len(b.Conf.CommandPrefix):]
+	if len(b.conf.BindToTextChannels) == 0 || utils.StringInSlice(m.ChannelID, b.conf.BindToTextChannels) {
+		if strings.HasPrefix(m.Content, b.conf.CommandPrefix) {
+			cmdName := strings.Fields(m.Content)[0][len(b.conf.CommandPrefix):]
 			foundCommand, found := cmdHandler.get(cmdName)
 			if !found {
 				log.WithFields(log.Fields{
@@ -97,7 +107,7 @@ func (b *Bot) voiceStateChange(s *discordgo.Session, v *discordgo.VoiceStateUpda
 		// pause music, nobody listening
 	}
 	for _, vs := range guild.VoiceStates {
-		if utils.StringInSlice(vs.ChannelID, b.Conf.AutoJoinVoiceChannels) {
+		if utils.StringInSlice(vs.ChannelID, b.conf.AutoJoinVoiceChannels) {
 			if vs.UserID != b.dg.State.User.ID {
 				// at least one user, not the bot is in channel
 				return

@@ -19,7 +19,7 @@ var (
 	flagDumpConfigFormat = flag.Bool("dumpconf", false, "If enabled, piccolo will dump a sample config file and exit. Uses config as path.")
 	flagVersion          = flag.Bool("version", false, "Print the version and exit.")
 
-	appVersion = version.Info{}
+	appVersion = &version.Info{}
 	conf       *utils.Config
 	bot        *piccolo.Bot
 )
@@ -66,9 +66,7 @@ func init() {
 		}).Fatal("Error Loading Config.")
 	}
 
-	bot = &piccolo.Bot{
-		Conf: conf,
-	}
+	bot = piccolo.NewBot(conf, appVersion)
 }
 
 func main() {
