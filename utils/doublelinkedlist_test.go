@@ -135,23 +135,28 @@ func TestDoubleLinkedListConcurrenyLength(t *testing.T) {
 			"Should be: ", totalLength,
 		)
 	}
-
-	wg.Add(10)
-	go func() {
-		defer wg.Done()
-		dll.Remove(dll.First())
-	}()
-	go func() {
-		defer wg.Done()
-		dll.Remove(dll.First())
-	}()
-	go func() {
-		defer wg.Done()
-		dll.Remove(dll.First())
-	}()
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		dll.Delete("3")
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Delete("23")
+	}()
+	wg.Wait()
+	wg.Add(8)
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
+	}()
+	go func() {
+		defer wg.Done()
+		dll.Remove(dll.First())
 	}()
 	go func() {
 		defer wg.Done()
@@ -160,10 +165,6 @@ func TestDoubleLinkedListConcurrenyLength(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		dll.Remove(dll.Last())
-	}()
-	go func() {
-		defer wg.Done()
-		dll.Delete("23")
 	}()
 	go func() {
 		defer wg.Done()

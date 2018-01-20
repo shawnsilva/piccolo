@@ -2,22 +2,45 @@
 
 
 [[projects]]
+  name = "github.com/PuerkitoBio/goquery"
+  packages = ["."]
+  revision = "a41cf096e64e3752d7683898d5746bc0b98ee213"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
-  version = "v1.0.3"
+  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
+  version = "v1.0.4"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/andybalholm/cascadia"
+  packages = ["."]
+  revision = "349dd0209470eabd9514242c688c403c0926d266"
 
 [[projects]]
   name = "github.com/bwmarrin/discordgo"
   packages = ["."]
-  revision = "2fda7ce223a66a5b70b66987c22c3c94d022ee66"
-  version = "v0.17.0"
+  revision = "4a33b9bc7c56cfdb9bb244e33e83cb3941fe2bdc"
+  version = "v0.18.0"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/jonas747/dca"
+  packages = ["."]
+  revision = "01f9985f4a26c29c2b4f5a7c133395e1aa6fffca"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/jonas747/ogg"
+  packages = ["."]
+  revision = "b4f6f4cf3757a3bf88eae9222045b99b9d76d8ca"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -28,24 +51,47 @@
 [[projects]]
   name = "github.com/mattn/go-isatty"
   packages = ["."]
-  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
-  version = "v0.0.2"
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
+
+[[projects]]
+  name = "github.com/rylio/ytdl"
+  packages = ["."]
+  revision = "bd30f781270fa4d6df59e2a49948cd157030a2c6"
+  version = "v0.5.1"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["nacl/secretbox","poly1305","salsa20/salsa","ssh/terminal"]
-  revision = "9ba3862cf6a5452ae579de98f9364dd2e544844c"
+  packages = [
+    "nacl/secretbox",
+    "poly1305",
+    "salsa20/salsa",
+    "ssh/terminal"
+  ]
+  revision = "13931e22f9e72ea58bb73048bc752b48c6d4d4ac"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = [
+    "html",
+    "html/atom"
+  ]
+  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows"]
-  revision = "a5054c7c1385fd50d9394475365355a87a7873ec"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "fff93fa7cd278d84afc205751523809c464168ab"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "178b951f21a8d3d15cec9a19696242080b5f76878524cc55c9f0763c3dfba7cf"
+  inputs-digest = "f5287de9b4ce9329eb4fa55dc5544b3bb781aa39cd513f2621055116e499692b"
   solver-name = "gps-cdcl"
   solver-version = 1

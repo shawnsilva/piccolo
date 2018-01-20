@@ -193,3 +193,33 @@ func (p *playlist) nextSong() interface{} {
 	}
 	return nil
 }
+
+func (p *playlist) peekNextSong() interface{} {
+	for {
+		if p.requestQueue.Length() <= 0 {
+			if p.list.Length() <= 0 {
+				break
+			} else {
+				if p.current == nil {
+					if p.list.First() != nil {
+						p.current = p.list.First()
+					} else {
+						break
+					}
+				}
+				_, songData := p.current.GetData()
+				song, ok := songData.(PlaylistEntry)
+				if !ok {
+					continue
+				}
+				return &song
+			}
+		}
+		song, ok := p.requestQueue.Look().(requestEntry)
+		if !ok {
+			continue
+		}
+		return &song
+	}
+	return nil
+}

@@ -5,3 +5,5 @@ config.json
 *.sample
 README.md
 .travis.yml
+.sync/
+ffmpeg.exe

@@ -17,6 +17,8 @@ deps:
 	@echo
 	@echo "Installing go dependencies..."
 	@echo
+	@echo "Installing dep"
+	@go get -u github.com/golang/dep/cmd/dep
 	@echo "Running dep ensure"
 	@dep ensure
 	@echo "Installing golint"

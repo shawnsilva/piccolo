@@ -23,12 +23,24 @@
 
 [[constraint]]
   name = "github.com/Sirupsen/logrus"
-  version = "1.0.3"
+  version = "v1.0.4"
 
 [[constraint]]
   name = "github.com/bwmarrin/discordgo"
-  version = "0.17.0"
+  version = "v0.18.0"
 
 [[constraint]]
   name = "github.com/mattn/go-colorable"
-  version = "0.0.9"
+  version = "v0.0.9"
+
+[[constraint]]
+  name = "github.com/rylio/ytdl"
+  version = "v0.5.1"
+
+[[constraint]]
+  name = "github.com/jonas747/dca"
+  revision = "01f9985f4a26c29c2b4f5a7c133395e1aa6fffca"
+
+[[constraint]]
+  name = "github.com/jonas747/ogg"
+  revision = "b4f6f4cf3757a3bf88eae9222045b99b9d76d8ca"

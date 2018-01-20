@@ -23,15 +23,20 @@ type BotConfig struct {
 	SkipRatio              float64 `json:"skip_ratio"`
 }
 
+// Guilds stores channel information for each guild/server your bot connects too
+type Guilds struct {
+	BindToTextChannels   []string `json:"bind_to_text_channels"`
+	AutoJoinVoiceChannel string   `json:"auto_join_voice_channel"`
+}
+
 // Config is used to store the application configuration.
 type Config struct {
-	BotToken              string    `json:"bot_token"`
-	OwnerID               string    `json:"owner_id"`
-	GoogleAPIKey          string    `json:"google_api_key"`
-	BindToTextChannels    []string  `json:"bind_to_text_channels"`
-	AutoJoinVoiceChannels []string  `json:"auto_join_voice_channels"`
-	CommandPrefix         string    `json:"command_prefix"`
-	Bot                   BotConfig `json:"bot"`
+	BotToken      string    `json:"bot_token"`
+	OwnerID       string    `json:"owner_id"`
+	GoogleAPIKey  string    `json:"google_api_key"`
+	CommandPrefix string    `json:"command_prefix"`
+	Bot           BotConfig `json:"bot"`
+	Guilds        []Guilds  `json:"guilds"`
 }
 
 var (
@@ -49,10 +54,9 @@ var (
 		SkipRatio:              0.5,
 	}
 	defaultConfig = Config{
-		CommandPrefix:         "!",
-		BindToTextChannels:    []string{"none"},
-		AutoJoinVoiceChannels: []string{"none"},
-		Bot: defaultBotConfig,
+		CommandPrefix: "!",
+		Bot:           defaultBotConfig,
+		Guilds:        []Guilds{},
 	}
 )
 

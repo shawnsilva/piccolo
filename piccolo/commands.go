@@ -65,6 +65,12 @@ func botVersion(b *Bot, m *discordgo.MessageCreate) {
 }
 
 func play(b *Bot, m *discordgo.MessageCreate) {
+	if _, ok := b.textChannelLookup[m.ChannelID]; !ok {
+		log.WithFields(log.Fields{
+			"channel": m.ChannelID,
+		}).Error("Failed to find controller from channel id")
+		return
+	}
 	song := strings.SplitN(m.Content, " ", 2)[1]
 	result, err := b.yt.SearchFirstResult(song)
 	if err != nil {
@@ -75,12 +81,18 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		b.reply(fmt.Sprintf("<@%s> - Sorry, couldn't find a result for: **%s**", m.Author.ID, song), m)
 		return
 	}
-	b.player.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
+	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
 }
 
 func savePlaylist(b *Bot, m *discordgo.MessageCreate) {
-	err := b.player.playlist.savePlaylist()
+	if _, ok := b.textChannelLookup[m.ChannelID]; !ok {
+		log.WithFields(log.Fields{
+			"channel": m.ChannelID,
+		}).Error("Failed to find controller from channel id")
+		return
+	}
+	err := b.textChannelLookup[m.ChannelID].player.playlist.savePlaylist()
 	if err == nil {
 		b.reply(fmt.Sprintf("<@%s> - Saved current playlist to disk.", m.Author.ID), m)
 	} else {
@@ -89,5 +101,11 @@ func savePlaylist(b *Bot, m *discordgo.MessageCreate) {
 }
 
 func printPlaylist(b *Bot, m *discordgo.MessageCreate) {
-	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.player.playlist), m)
+	if _, ok := b.textChannelLookup[m.ChannelID]; !ok {
+		log.WithFields(log.Fields{
+			"channel": m.ChannelID,
+		}).Error("Failed to find controller from channel id")
+		return
+	}
+	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.textChannelLookup[m.ChannelID].player.playlist), m)
 }
