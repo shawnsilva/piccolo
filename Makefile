@@ -60,7 +60,7 @@ fmt:
 	@echo
 	@echo "Running gofmt..."
 	@echo
-	@gofmt -d .
+	@gofmt -d ${GO_PKG_FILES}
 
 lint:
 	@echo
