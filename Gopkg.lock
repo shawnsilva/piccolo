@@ -37,7 +37,6 @@
   revision = "01f9985f4a26c29c2b4f5a7c133395e1aa6fffca"
 
 [[projects]]
-  branch = "master"
   name = "github.com/jonas747/ogg"
   packages = ["."]
   revision = "b4f6f4cf3757a3bf88eae9222045b99b9d76d8ca"
@@ -92,6 +91,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f5287de9b4ce9329eb4fa55dc5544b3bb781aa39cd513f2621055116e499692b"
+  inputs-digest = "2ababee933a67a2ed6f0885193894e9c5cafc8bbd72b824bcc5227a835059f30"
   solver-name = "gps-cdcl"
   solver-version = 1

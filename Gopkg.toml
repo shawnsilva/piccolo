@@ -41,6 +41,6 @@
   name = "github.com/jonas747/dca"
   revision = "01f9985f4a26c29c2b4f5a7c133395e1aa6fffca"
 
-[[constraint]]
+[[override]]
   name = "github.com/jonas747/ogg"
   revision = "b4f6f4cf3757a3bf88eae9222045b99b9d76d8ca"
