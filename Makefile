@@ -10,6 +10,7 @@ GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
 
 GO_PKG_FILES=$(shell go list ./... | grep -v vendor)
+GO_PKG_FILES_PATH=$(shell go list -f '{{$p := .}}{{range $f := .GoFiles}}{{$p.Dir}}/{{$f}} {{end}} {{range $f := .TestGoFiles}}{{$p.Dir}}/{{$f}} {{end}}' ./... | grep -v vendor)
 
 defaultTarget: clean deps fmt lint vet test build
 
@@ -60,7 +61,7 @@ fmt:
 	@echo
 	@echo "Running gofmt..."
 	@echo
-	@gofmt -d ${GO_PKG_FILES}
+	@gofmt -d ${GO_PKG_FILES_PATH}
 
 lint:
 	@echo
