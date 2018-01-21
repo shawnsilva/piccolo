@@ -71,7 +71,15 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		}).Error("Failed to find controller from channel id")
 		return
 	}
-	song := strings.SplitN(m.Content, " ", 2)[1]
+	splitString := strings.SplitN(m.Content, " ", 2)
+	if len(splitString) <= 1 {
+		log.WithFields(log.Fields{
+			"command": m.Content,
+		}).Debug("!play doesn't appear to contain a search string")
+		b.reply(fmt.Sprintf("<@%s> - Sorry, your command didn't appear to have a song to search for: **%s**", m.Author.ID, m.Content), m)
+		return
+	}
+	song := splitString[1]
 	result, err := b.yt.SearchFirstResult(song)
 	if err != nil {
 		log.WithFields(log.Fields{
