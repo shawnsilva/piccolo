@@ -6,4 +6,4 @@ install:
     - go get -u github.com/golang/dep/cmd/dep
     - make install
 script:
-    - make deps fmt lint vet test build
+    - make deps check test build

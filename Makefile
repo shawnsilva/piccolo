@@ -10,12 +10,13 @@ GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
 
 GO_PKG_FILES=$(shell go list ./... | grep -v vendor)
+GO_FILES_NO_VENDOR = $(shell find . \( ! -regex '.*/\..*' \) -type f -name '*.go' -not -path "./vendor/*")
 
-defaultTarget: clean deps fmt lint vet test build
+defaultTarget: clean deps check test build
 
 deps:
 	@echo
-	@echo "Installing go dependencies..."
+	@echo "[deps]"
 	@echo
 	@echo "Installing dep"
 	@go get -u github.com/golang/dep/cmd/dep
@@ -27,7 +28,7 @@ deps:
 # Build piccolo using your current systems architecture as the target
 build: deps
 	@echo
-	@echo "Building..."
+	@echo "[build]"
 	@echo
 	@go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
 
@@ -44,6 +45,17 @@ buildAll: deps
 	env GOOS=freebsd GOARCH=arm go build -v ${LDFLAGS} -o build/freebsd_arm/${BINARY} cmd/piccolo/main.go
 	env GOOS=solaris GOARCH=amd64 go build -v ${LDFLAGS} -o build/solaris_amd64/${BINARY} cmd/piccolo/main.go
 
+check: deps
+	@echo
+	@echo "[check]"
+	@echo
+	@echo "Running go vet..."
+	@go vet ${GO_PKG_FILES}
+	@echo "Running gofmt (not modifying)..."
+	@gofmt -d -l ${GO_FILES_NO_VENDOR} | read && echo "ERROR: gofmt's style checks didn't pass" 1>&2 && exit 1 || true
+	@echo "Running golint..."
+	@golint -set_exit_status ${GO_PKG_FILES} || (echo "ERROR: golint found errors" 1>&2 && exit 1)
+
 docker:
 	docker build --tag "shawnsilva/piccolo:latest" --tag "shawnsilva/piccolo:${GIT_VERSION}" .
 
@@ -52,33 +64,33 @@ install: deps
 
 test: deps
 	@echo
-	@echo "Running tests..."
+	@echo "[test]"
 	@echo
 	@go test -v -race -cover ${GO_PKG_FILES}
 
 fmt:
 	@echo
-	@echo "Running gofmt..."
+	@echo "[gofmt]"
 	@echo
-	# @gofmt -d .
+	@gofmt -l -w ${GO_FILES_NO_VENDOR}
 
 lint:
 	@echo
-	@echo "Running golint..."
+	@echo "[golint]"
 	@echo
 	@golint ${GO_PKG_FILES}
 
 vet:
 	@echo
-	@echo "Running go vet..."
+	@echo "[go vet]"
 	@echo
 	@go vet ${GO_PKG_FILES}
 
 clean:
 	@echo
-	@echo "Cleaning..."
+	@echo "[cleaning]"
 	@echo
 	@if [ -f build/${BINARY} ] ; then rm build/${BINARY} ; fi
 	@go clean -x ${GO_PKG_FILES}
 
-.PHONY: clean fmt lint vet
+.PHONY: clean check

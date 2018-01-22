@@ -5,16 +5,18 @@ import (
 )
 
 type (
-	queueItem struct {
+	// QueueItem is a specific Queue entry, and is exported to allow inspection without
+	// modifying they queue.
+	QueueItem struct {
 		data interface{}
-		next *queueItem
+		next *QueueItem
 		lock *sync.Mutex
 	}
 
 	// Queue contains pointers to start and end of a queue, the length, and a lock
 	Queue struct {
-		start  *queueItem
-		end    *queueItem
+		start  *QueueItem
+		end    *QueueItem
 		length int
 		lock   *sync.Mutex
 	}
@@ -39,7 +41,7 @@ func (q *Queue) Push(item interface{}) {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
-	n := &queueItem{data: item}
+	n := &QueueItem{data: item}
 	n.lock = &sync.Mutex{}
 
 	n.lock.Lock()
@@ -94,21 +96,23 @@ func (q *Queue) Look() interface{} {
 	return n.data
 }
 
-// First returns the first queueItem.
-func (q *Queue) First() *queueItem {
+// First returns the first QueueItem.
+func (q *Queue) First() *QueueItem {
 	q.lock.Lock()
 	defer q.lock.Unlock()
 
 	return q.start
 }
 
-func (i *queueItem) Next() *queueItem {
+// Next will return the next item in the queue, without modifying the queue
+func (i *QueueItem) Next() *QueueItem {
 	i.lock.Lock()
 	defer i.lock.Unlock()
 	return i.next
 }
 
-func (i *queueItem) Data() interface{} {
+// Data returns the data of a particular node in the queue
+func (i *QueueItem) Data() interface{} {
 	i.lock.Lock()
 	defer i.lock.Unlock()
 	return i.data

@@ -13,6 +13,8 @@ import (
 	"github.com/rylio/ytdl"
 )
 
+// DownloadDCAAudio takes a youtube video id, downloads the audio and then
+// converts the song to DCA format to be compatible with discordgo.
 func (yt Manager) DownloadDCAAudio(videoID string) (string, error) {
 	cacheDir := filepath.ToSlash(yt.YTCacheDir)
 	outputFilePath := path.Join(cacheDir, "/", videoID+".dca")
@@ -28,7 +30,8 @@ func (yt Manager) DownloadDCAAudio(videoID string) (string, error) {
 	options := dca.StdEncodeOptions
 	options.RawOutput = true
 	options.Bitrate = 128
-	options.Application = "lowdelay"
+	options.Application = "audio"
+	options.Volume = 125
 
 	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	if err != nil {
