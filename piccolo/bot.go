@@ -73,6 +73,7 @@ func (b *Bot) Start() {
 		return
 	}
 
+	downloadLock := &sync.Mutex{}
 	for _, guild := range b.conf.Guilds {
 		vch, err := b.dg.Channel(guild.AutoJoinVoiceChannel)
 		if err != nil {
@@ -132,7 +133,7 @@ func (b *Bot) Start() {
 			guildID:        gID,
 			voiceChannelID: guild.AutoJoinVoiceChannel,
 			textChannelIDs: textChIDs,
-			player:         newPlayer(b.conf, gID, guild.AutoJoinVoiceChannel),
+			player:         newPlayer(b.conf, gID, guild.AutoJoinVoiceChannel, b.yt, downloadLock, b.dg),
 		}
 		b.guildLookup = make(map[string]*guildControls)
 		b.textChannelLookup = make(map[string]*guildControls)
@@ -168,11 +169,11 @@ func (b *Bot) Stop() {
 }
 
 func (b *Bot) ready(s *discordgo.Session, event *discordgo.Ready) {
-	_ = s.UpdateStatus(0, "development")
+	_ = s.UpdateStatus(0, "Loading...")
 	b.lock.Lock()
 	defer b.lock.Unlock()
 	for _, vChannel := range b.voiceChannelLookup {
-		err := vChannel.player.JoinVoiceChannel(s)
+		err := vChannel.player.JoinVoiceChannel()
 		if err != nil {
 			log.Error(err)
 		}
@@ -204,20 +205,29 @@ func (b *Bot) voiceStateChange(s *discordgo.Session, v *discordgo.VoiceStateUpda
 	}
 	if len(guild.VoiceStates) <= 1 {
 		// pause music, nobody listening
-		log.Debug("Pausing Music, nobody in voice channel")
+		if _, ok := b.guildLookup[v.GuildID]; ok {
+			log.Debug("Pausing Music, nobody in voice channel")
+			b.guildLookup[v.GuildID].player.Pause()
+		}
 		return
 	}
 	for _, vs := range guild.VoiceStates {
 		if _, ok := b.voiceChannelLookup[vs.ChannelID]; ok {
 			if vs.UserID != b.dg.State.User.ID {
 				// at least one user, not the bot is in channel
-				log.Debug("Playing Music")
+				if _, ok := b.guildLookup[v.GuildID]; ok {
+					log.Debug("Playing Music")
+					b.guildLookup[v.GuildID].player.Play()
+				}
 				return
 			}
 		}
 	}
 	// pause music, nobody listening
-	log.Debug("Pausing Music, nobody in voice channel")
+	if _, ok := b.guildLookup[v.GuildID]; ok {
+		log.Debug("Pausing Music, nobody in voice channel")
+		b.guildLookup[v.GuildID].player.Pause()
+	}
 }
 
 func (b *Bot) reply(message string, m *discordgo.MessageCreate) {

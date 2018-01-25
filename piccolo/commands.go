@@ -75,7 +75,7 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 	if len(splitString) <= 1 {
 		log.WithFields(log.Fields{
 			"command": m.Content,
-		}).Debug("!play doesn't appear to contain a search string")
+		}).Warn("!play doesn't appear to contain a search string")
 		b.reply(fmt.Sprintf("<@%s> - Sorry, your command didn't appear to have a song to search for: **%s**", m.Author.ID, m.Content), m)
 		return
 	}
