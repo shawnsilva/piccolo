@@ -75,7 +75,7 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 	if len(splitString) <= 1 {
 		log.WithFields(log.Fields{
 			"command": m.Content,
-		}).Debug("!play doesn't appear to contain a search string")
+		}).Warn("!play doesn't appear to contain a search string")
 		b.reply(fmt.Sprintf("<@%s> - Sorry, your command didn't appear to have a song to search for: **%s**", m.Author.ID, m.Content), m)
 		return
 	}
@@ -89,7 +89,7 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		b.reply(fmt.Sprintf("<@%s> - Sorry, couldn't find a result for: **%s**", m.Author.ID, song), m)
 		return
 	}
-	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, result.ID.VideoID, result.Snippet.Title)
+	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, m.ChannelID, result.ID.VideoID, result.Snippet.Title)
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
 }
 
