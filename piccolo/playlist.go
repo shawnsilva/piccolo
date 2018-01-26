@@ -15,13 +15,10 @@ import (
 type (
 	// PlaylistEntry is an individual song in the playlist
 	PlaylistEntry struct {
-		Title   string `json:"title"`
-		VideoID string `json:"videoID"`
-	}
-
-	requestEntry struct {
-		requester *discordgo.User
-		song      PlaylistEntry
+		Requester        *discordgo.User `json:"-"`
+		RequestChannelID string          `json:"-"`
+		Title            string          `json:"title"`
+		VideoID          string          `json:"videoID"`
 	}
 
 	playlist struct {
@@ -120,12 +117,12 @@ func (p *playlist) String() string {
 			if queueItem == nil {
 				break
 			}
-			song, ok := queueItem.Data().(requestEntry)
+			song, ok := queueItem.Data().(PlaylistEntry)
 			if !ok {
 				continue
 			}
 			queueString = queueString + fmt.Sprintf("\t%d. %s - Requester: %s\n",
-				count, song.song.Title, song.requester.Username)
+				count, song.Title, song.Requester.Username)
 			queueItem = queueItem.Next()
 			count++
 		}
@@ -153,17 +150,16 @@ func (p *playlist) String() string {
 		queueString, playlistString)
 }
 
-func (p *playlist) addSong(requester *discordgo.User, id string, title string) {
-	p.requestQueue.Push(requestEntry{
-		requester: requester,
-		song: PlaylistEntry{
-			Title:   title,
-			VideoID: id,
-		},
+func (p *playlist) addSong(requester *discordgo.User, channelID string, id string, title string) {
+	p.requestQueue.Push(PlaylistEntry{
+		Requester:        requester,
+		RequestChannelID: channelID,
+		Title:            title,
+		VideoID:          id,
 	})
 }
 
-func (p *playlist) nextSong() interface{} {
+func (p *playlist) nextSong() *PlaylistEntry {
 	for {
 		if p.requestQueue.Length() <= 0 {
 			if p.list.Length() <= 0 {
@@ -185,7 +181,7 @@ func (p *playlist) nextSong() interface{} {
 				return &song
 			}
 		}
-		song, ok := p.requestQueue.Pop().(requestEntry)
+		song, ok := p.requestQueue.Pop().(PlaylistEntry)
 		if !ok {
 			continue
 		}
@@ -194,7 +190,7 @@ func (p *playlist) nextSong() interface{} {
 	return nil
 }
 
-func (p *playlist) peekNextSong() interface{} {
+func (p *playlist) peekNextSong() *PlaylistEntry {
 	for {
 		if p.requestQueue.Length() <= 0 {
 			if p.list.Length() <= 0 {
@@ -215,7 +211,7 @@ func (p *playlist) peekNextSong() interface{} {
 				return &song
 			}
 		}
-		song, ok := p.requestQueue.Look().(requestEntry)
+		song, ok := p.requestQueue.Look().(PlaylistEntry)
 		if !ok {
 			continue
 		}

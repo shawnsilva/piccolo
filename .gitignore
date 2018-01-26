@@ -27,6 +27,8 @@ build
 config.json
 playlist.json
 
+video_cache/
+
 vendor
 
 video.go.1
