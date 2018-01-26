@@ -1,6 +1,7 @@
 package piccolo
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -26,6 +27,8 @@ type (
 		stream         *dca.StreamingSession
 		yt             *youtube.Manager
 
+		streamDoneChan chan error
+
 		currentSong *songAndPath
 
 		dg *discordgo.Session
@@ -39,10 +42,13 @@ type (
 	}
 )
 
+var errShutdown = errors.New("SHUTDOWN")
+
 func newPlayer(confpointer *utils.Config, guildID string, voiceChID string, youtube *youtube.Manager, downloadLock *sync.Mutex, discordSession *discordgo.Session) *player {
 	p := &player{conf: confpointer, guildID: guildID, voiceChannelID: voiceChID, yt: youtube, dg: discordSession}
 	p.playlist = newPlaylist(p.conf.Bot.UsePlaylist, p.conf.Bot.PlaylistPath)
 	p.downloadLock = downloadLock
+	p.streamDoneChan = make(chan error)
 	return p
 }
 
@@ -50,7 +56,8 @@ func (p *player) Shutdown() error {
 	if p.stream != nil {
 		p.stream.SetPaused(true)
 	}
-
+	p.downloadLock.Lock()
+	p.streamDoneChan <- errShutdown
 	p.stream = nil
 	if p.vc != nil {
 		p.vc.Speaking(false)
@@ -88,8 +95,8 @@ func (p *player) playLoop() {
 			p.currentSong = nextSong
 			decoder := dca.NewDecoder(reader)
 			p.vc.Speaking(true)
-			done := make(chan error)
-			p.stream = dca.NewStream(decoder, p.vc, done)
+
+			p.stream = dca.NewStream(decoder, p.vc, p.streamDoneChan)
 			p.updateStatus()
 			if nextSong.Requester != nil && nextSong.RequestChannelID != "" {
 				// Message requester their song is playing
@@ -102,7 +109,10 @@ func (p *player) playLoop() {
 					}).Error("Failed to send message about request now playing")
 				}
 			}
-			streamErr := <-done
+			streamErr := <-p.streamDoneChan
+			if streamErr == errShutdown {
+				return
+			}
 			if streamErr != nil && streamErr != io.EOF {
 				// Handle the error
 				log.WithFields(log.Fields{
