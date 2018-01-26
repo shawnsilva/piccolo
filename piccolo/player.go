@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
@@ -118,6 +119,9 @@ func (p *player) playLoop() {
 				log.WithFields(log.Fields{
 					"error": streamErr,
 				}).Error("Error streaming song")
+				for !p.vc.Ready {
+					time.Sleep(time.Duration(2) * time.Second)
+				}
 			}
 			p.vc.Speaking(false)
 		}
