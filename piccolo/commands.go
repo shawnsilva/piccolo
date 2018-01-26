@@ -90,6 +90,7 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		return
 	}
 	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, m.ChannelID, result.ID.VideoID, result.Snippet.Title)
+	go b.textChannelLookup[m.ChannelID].player.downloadNextSong()
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
 }
 
