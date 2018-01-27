@@ -29,6 +29,7 @@ func init() {
 	cmdHandler.addCommand("help", help)
 	cmdHandler.addCommand("version", botVersion)
 	cmdHandler.addCommand("play", play)
+	cmdHandler.addCommand("skipSong", skipSong)
 	cmdHandler.addCommand("savePlaylist", savePlaylist)
 	cmdHandler.addCommand("showPlaylist", printPlaylist)
 }
@@ -92,6 +93,43 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, m.ChannelID, result.ID.VideoID, result.Snippet.Title)
 	go b.textChannelLookup[m.ChannelID].player.downloadNextSong()
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
+}
+
+func skipSong(b *Bot, m *discordgo.MessageCreate) {
+	if _, ok := b.textChannelLookup[m.ChannelID]; !ok {
+		log.WithFields(log.Fields{
+			"channel": m.ChannelID,
+		}).Error("Failed to find controller from channel id")
+		return
+	}
+	textChannelInfo, err := b.dg.Channel(m.ChannelID)
+	if err != nil {
+		log.Error("Failed to determine text channel info")
+		return
+	}
+	gID := textChannelInfo.GuildID
+	guildInfo, err := b.dg.Guild(gID)
+	if err != nil {
+		log.Error("Failed to determine guild info")
+		return
+	}
+	numListeners := 0
+	foundRequester := false
+	for _, vs := range guildInfo.VoiceStates {
+		if b.textChannelLookup[m.ChannelID].voiceChannelID != vs.ChannelID {
+			continue
+		}
+		numListeners = numListeners + 1
+		if m.Author.ID == vs.UserID {
+			foundRequester = true
+		}
+	}
+	if !foundRequester {
+		b.reply(fmt.Sprintf("<@%s> - You are not even listening, you don't get to skip!", m.Author.ID), m)
+		return
+	}
+	message := b.textChannelLookup[m.ChannelID].player.Skip(numListeners-1, m.Author.ID)
+	b.reply(message, m)
 }
 
 func savePlaylist(b *Bot, m *discordgo.MessageCreate) {

@@ -19,7 +19,7 @@ type BotConfig struct {
 	DeleteMessages         bool    `json:"delete_messages"`
 	DeleteInvokingMessages bool    `json:"delete_invoking_messages"`
 	NowPlayingMentions     bool    `json:"now_playing_mentions"`
-	SkipsRequired          float64 `json:"skips_required"`
+	SkipsRequired          int     `json:"skips_required"`
 	SkipRatio              float64 `json:"skip_ratio"`
 }
 

@@ -38,12 +38,14 @@ type (
 	}
 
 	songAndPath struct {
-		fsPath string
+		fsPath         string
+		skipsRequested []string
 		*PlaylistEntry
 	}
 )
 
 var errShutdown = errors.New("SHUTDOWN")
+var errSkip = errors.New("SKIP")
 
 func newPlayer(confpointer *utils.Config, guildID string, voiceChID string, youtube *youtube.Manager, downloadLock *sync.Mutex, discordSession *discordgo.Session) *player {
 	p := &player{conf: confpointer, guildID: guildID, voiceChannelID: voiceChID, yt: youtube, dg: discordSession}
@@ -114,7 +116,7 @@ func (p *player) playLoop() {
 			if streamErr == errShutdown {
 				return
 			}
-			if streamErr != nil && streamErr != io.EOF {
+			if streamErr != nil && streamErr != io.EOF && streamErr != errSkip {
 				// Handle the error
 				log.WithFields(log.Fields{
 					"error": streamErr,
@@ -157,6 +159,38 @@ func (p *player) Play() {
 	}
 }
 
+func (p *player) Skip(numListeners int, requesterID string) string {
+	if numListeners == 1 {
+		// Only one listener, let them skip
+		p.skipSong()
+		return fmt.Sprintf("<@%s> - Since you are all alone, skipping!", requesterID)
+	}
+	if !utils.StringInSlice(requesterID, p.currentSong.skipsRequested) {
+		p.currentSong.skipsRequested = append(p.currentSong.skipsRequested, requesterID)
+	} else {
+		// Already requested a skip on this song, can't requests again
+		return fmt.Sprintf("<@%s> - You already requested to skip this song, you can't again!", requesterID)
+	}
+	currentSkipRatio := float64(len(p.currentSong.skipsRequested)) / float64(numListeners)
+	if currentSkipRatio >= p.conf.Bot.SkipRatio {
+		// Ratio is above required ratio, let skip the song
+		p.skipSong()
+		return fmt.Sprintf("<@%s> - Required ratio met, skipping song!", requesterID)
+	}
+
+	if len(p.currentSong.skipsRequested) >= p.conf.Bot.SkipsRequired {
+		// Met total skips required, skip
+		p.skipSong()
+		return fmt.Sprintf("<@%s> - Met total required skips, skipping!", requesterID)
+	}
+	return fmt.Sprintf("<@%s> - Your request to skip has been recorded, but not enough people have requested yet.", requesterID)
+}
+
+func (p *player) skipSong() {
+	p.Pause()
+	p.streamDoneChan <- errSkip
+}
+
 func (p *player) downloadNextSong() {
 	p.downloadLock.Lock()
 	defer p.downloadLock.Unlock()
@@ -188,7 +222,7 @@ func (p *player) getNextSongPath() (*songAndPath, error) {
 
 	songFilePath := path.Join(p.yt.YTCacheDir, nextSong.VideoID+".dca")
 	if _, err := os.Stat(filepath.FromSlash(songFilePath)); err == nil {
-		return &songAndPath{songFilePath, nextSong}, nil
+		return &songAndPath{songFilePath, []string{}, nextSong}, nil
 	}
 	log.WithFields(log.Fields{
 		"songpath": songFilePath,
