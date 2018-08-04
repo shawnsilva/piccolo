@@ -3,23 +3,26 @@ sudo: 'required'
 services:
   - 'docker'
 
-before_install:
-  - './.travis/main.sh'
+
 
 language: go
 go:
     - 1.8
     - 1.9
     - "1.10"
-install:
-    - go get -u github.com/golang/dep/cmd/dep
-    - make install
-script:
-    - make deps check test build
-    - make docker-build
 
-after_success:
-  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
-      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ;
-      make docker-push ;
-    fi
+
+jobs:
+  include:
+    - stage: test
+      script: make deps check test build
+    - stage: build docker image
+      before_install: './.travis/main.sh'
+      script: make docker-build
+    - stage: deploy
+      if: branch = master
+      before_install: './.travis/main.sh'
+      script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - make docker-build
+      - make docker-push
