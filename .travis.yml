@@ -16,10 +16,10 @@ install:
     - make install
 script:
     - make deps check test build
-    - make docker-image
+    - make docker-build
 
 after_success:
   - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
       echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin ;
-      make push-image ;
+      make docker-push ;
     fi
