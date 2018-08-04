@@ -6,7 +6,7 @@ RUN apk add --update --no-cache opus-dev git make pkgconfig build-base && \
 
 FROM alpine:3.8
 ENV APP_USER=piccolo \
-    APP_NAME=piccolo \
+    APP_NAME=piccolo
 
 RUN apk add --no-cache --update ffmpeg opus bash ca-certificates && \
     # Setup a base user for running applications
