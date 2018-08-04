@@ -1,11 +1,5 @@
 sudo: 'required'
 
-services:
-  - 'docker'
-
-
-
-language: go
 go:
     - 1.8
     - 1.9
@@ -17,10 +11,14 @@ jobs:
     - stage: test
       script: make deps check test build
     - stage: build docker image
+      services:
+      - 'docker'
       before_install: './.travis/main.sh'
       script: make docker-build
     - stage: deploy
       if: branch = master
+      services:
+      - 'docker'
       before_install: './.travis/main.sh'
       script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
