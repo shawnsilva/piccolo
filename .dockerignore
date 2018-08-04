@@ -1,9 +1,6 @@
 build/
 
 .DS_Store
-config.json
-*.sample
-README.md
-.travis.yml
 .sync/
 ffmpeg.exe
+video_cache/
