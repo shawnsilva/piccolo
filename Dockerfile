@@ -1,4 +1,4 @@
-FROM golang:1.10.3-alpine-3.8 as builder
+FROM golang:1.10.3-alpine3.8 as builder
 WORKDIR /go/src/github.com/shawnsilva/piccolo/
 COPY . .
 RUN apk add --update --no-cache opus-dev git make pkgconfig build-base && \
