@@ -18,12 +18,14 @@ jobs:
       services:
       - 'docker'
       before_install: './.travis/main.sh'
+      install: skip
       script: make docker-build
     - stage: deploy
       if: branch = master
       services:
       - 'docker'
       before_install: './.travis/main.sh'
+      install: skip
       script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - make docker-build

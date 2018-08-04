@@ -3,8 +3,8 @@
 # Name of the resulting binary
 BINARY=piccolo
 
-GIT_VERSION=`git describe --always --dirty`
-GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+GIT_VERSION=$(shell git describe --always --dirty)
+GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 
 # Create -ldflags for go build, inject Git version info
 LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
