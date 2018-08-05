@@ -5,3 +5,4 @@ services:
         image: shawnsilva/piccolo:latest
         volumes:
             - ./conf:/opt/piccolo/conf:ro
+            - ./video_cache:/opt/piccolo/video_cache

@@ -1,9 +1,33 @@
+sudo: 'required'
+
 language: go
 go:
     - 1.8
     - 1.9
+    - "1.10"
+
 install:
     - go get -u github.com/golang/dep/cmd/dep
     - make install
 script:
     - make deps check test build
+
+jobs:
+  include:
+    - stage: build docker image
+      if: NOT branch = master OR type = pull_request
+      services:
+      - 'docker'
+      before_install: './.travis/main.sh'
+      install: skip
+      script: make docker-build
+    - stage: deploy
+      if: (branch = master) AND (NOT type = pull_request)
+      services:
+      - 'docker'
+      before_install: './.travis/main.sh'
+      install: skip
+      script:
+      - make docker-build
+      - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi'
+      - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then make docker-push; fi'
