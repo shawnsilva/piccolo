@@ -5,6 +5,7 @@ BINARY=piccolo
 
 GIT_VERSION=$(shell git describe --always --dirty)
 GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
+GIT_TAG=$(shell git describe --exact-match HEAD 2>/dev/null || true)
 
 # Create -ldflags for go build, inject Git version info
 LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
@@ -57,11 +58,11 @@ check: deps
 	#@golint -set_exit_status ${GO_PKG_FILES} || (echo "ERROR: golint found errors" 1>&2 && exit 1)
 
 docker-build:
-	docker build --tag "shawnlsilva/piccolo:latest" --tag "shawnlsilva/piccolo:${GIT_VERSION}" .
+	docker build --tag "shawnlsilva/piccolo:latest" .
+	if [ "${GIT_TAG}" != "" ] ; then docker tag "shawnlsilva/piccolo:latest" "shawnlsilva/piccolo:${GIT_TAG}"; fi
 
 docker-push:
-	docker push "shawnlsilva/piccolo:${GIT_VERSION}"
-	docker push "shawnlsilva/piccolo:latest"
+	docker push "shawnlsilva/piccolo"
 
 install: deps
 	go install ${LDFLAGS} github.com/shawnsilva/piccolo/cmd/piccolo
