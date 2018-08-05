@@ -58,11 +58,11 @@ check: deps
 	#@golint -set_exit_status ${GO_PKG_FILES} || (echo "ERROR: golint found errors" 1>&2 && exit 1)
 
 docker-build:
-	docker build --tag "shawnlsilva/piccolo:latest" .
-	@if [ "${GIT_TAG}" != "" ] ; then docker tag "shawnlsilva/piccolo:latest" "shawnlsilva/piccolo:${GIT_TAG}"; fi
+	docker build --tag "shawnsilva/piccolo:latest" .
+	@if [ "${GIT_TAG}" != "" ] ; then docker tag "shawnsilva/piccolo:latest" "shawnsilva/piccolo:${GIT_TAG}"; fi
 
 docker-push:
-	docker push "shawnlsilva/piccolo"
+	docker push "shawnsilva/piccolo"
 
 install: deps
 	go install ${LDFLAGS} github.com/shawnsilva/piccolo/cmd/piccolo
