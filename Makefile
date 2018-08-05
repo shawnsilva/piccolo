@@ -59,7 +59,7 @@ check: deps
 
 docker-build:
 	docker build --tag "shawnlsilva/piccolo:latest" .
-	if [ "${GIT_TAG}" != "" ] ; then docker tag "shawnlsilva/piccolo:latest" "shawnlsilva/piccolo:${GIT_TAG}"; fi
+	@if [ "${GIT_TAG}" != "" ] ; then docker tag "shawnlsilva/piccolo:latest" "shawnlsilva/piccolo:${GIT_TAG}"; fi
 
 docker-push:
 	docker push "shawnlsilva/piccolo"
