@@ -2,95 +2,127 @@
 
 
 [[projects]]
+  digest = "1:1fd29b370365747965c4eee7df06edb1d2edd7fc574960fd101f8f2109970b93"
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
+  pruneopts = ""
   revision = "a41cf096e64e3752d7683898d5746bc0b98ee213"
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:42a42c4bc67bed17f40fddf0f24d4403e25e7b96488456cf4248e6d16659d370"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
+  pruneopts = ""
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
   version = "v1.0.4"
 
 [[projects]]
   branch = "master"
+  digest = "1:8012998ddb3eed9cc0a3b2512d1f37d0947fd604868049cc698d9dc6ea1bd46c"
   name = "github.com/andybalholm/cascadia"
   packages = ["."]
+  pruneopts = ""
   revision = "349dd0209470eabd9514242c688c403c0926d266"
 
 [[projects]]
+  digest = "1:b0fd1aac4e6eee019a17b69dc4473f6e6eaa39b80b36473bb6ed958e4f8e471c"
   name = "github.com/bwmarrin/discordgo"
   packages = ["."]
+  pruneopts = ""
   revision = "4a33b9bc7c56cfdb9bb244e33e83cb3941fe2bdc"
   version = "v0.18.0"
 
 [[projects]]
+  digest = "1:64d212c703a2b94054be0ce470303286b177ad260b2f89a307e3d1bb6c073ef6"
   name = "github.com/gorilla/websocket"
   packages = ["."]
+  pruneopts = ""
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:d478129b65efc6092f58a1c227c814ddf95bc6e0b043c261465874f7c985d888"
   name = "github.com/jonas747/dca"
   packages = ["."]
+  pruneopts = ""
   revision = "01f9985f4a26c29c2b4f5a7c133395e1aa6fffca"
 
 [[projects]]
+  digest = "1:85f2af19f1971eace1974b8c587ef5aed7d5f872d7c0b8cd18df05f65d905819"
   name = "github.com/jonas747/ogg"
   packages = ["."]
+  pruneopts = ""
   revision = "b4f6f4cf3757a3bf88eae9222045b99b9d76d8ca"
 
 [[projects]]
+  digest = "1:9ea83adf8e96d6304f394d40436f2eb44c1dc3250d223b74088cc253a6cd0a1c"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
+  pruneopts = ""
   revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
   version = "v0.0.9"
 
 [[projects]]
+  digest = "1:78229b46ddb7434f881390029bd1af7661294af31f6802e0e1bedaad4ab0af3c"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
+  pruneopts = ""
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
 
 [[projects]]
+  digest = "1:6a418e7a35ad5cde414beac2c55e09e87dbbd94393731b2423beb43b5c29e01d"
   name = "github.com/rylio/ytdl"
   packages = ["."]
+  pruneopts = ""
   revision = "bd30f781270fa4d6df59e2a49948cd157030a2c6"
   version = "v0.5.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:43adf91783cc814f60c0dd21c9aadf0b5284721e13542e124536638e0b43a6b3"
   name = "golang.org/x/crypto"
   packages = [
     "nacl/secretbox",
     "poly1305",
     "salsa20/salsa",
-    "ssh/terminal"
+    "ssh/terminal",
   ]
+  pruneopts = ""
   revision = "13931e22f9e72ea58bb73048bc752b48c6d4d4ac"
 
 [[projects]]
   branch = "master"
+  digest = "1:f3ee2a699dd02cac37fbca1d028f1121ce0e48143a0f9abd293d3141dcfe6b92"
   name = "golang.org/x/net"
   packages = [
     "html",
-    "html/atom"
+    "html/atom",
   ]
+  pruneopts = ""
   revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
 
 [[projects]]
   branch = "master"
+  digest = "1:fe1f3391cc19aff2b2a667d5836cb21ed47747c3de1170cbfa81f9ec98665711"
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
   ]
+  pruneopts = ""
   revision = "fff93fa7cd278d84afc205751523809c464168ab"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2ababee933a67a2ed6f0885193894e9c5cafc8bbd72b824bcc5227a835059f30"
+  input-imports = [
+    "github.com/Sirupsen/logrus",
+    "github.com/bwmarrin/discordgo",
+    "github.com/jonas747/dca",
+    "github.com/mattn/go-colorable",
+    "github.com/rylio/ytdl",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

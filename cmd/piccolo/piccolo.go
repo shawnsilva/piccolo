@@ -77,8 +77,10 @@ func main() {
 	cleanupDoneChannel := make(chan bool)
 	signal.Notify(sigIntChannel, os.Interrupt, syscall.SIGTERM)
 	go func() {
-		for _ = range sigIntChannel {
-			fmt.Println("\nReceived Shutdown Request, shutting down...")
+		for sig := range sigIntChannel {
+			log.WithFields(log.Fields{
+				"signal": sig,
+			}).Info("Received Shutdown Request, shutting down.")
 			// do stuff
 			bot.Stop()
 			cleanupDoneChannel <- true

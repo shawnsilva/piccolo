@@ -24,7 +24,7 @@ deps:
 	@echo "Running dep ensure"
 	@dep ensure
 	@echo "Installing golint"
-	@go get github.com/golang/lint/golint
+	@go get -u github.com/golang/lint/golint
 
 # Build piccolo using your current systems architecture as the target
 build: deps
@@ -55,7 +55,7 @@ check: deps
 	@echo "Running gofmt (not modifying)..."
 	@gofmt -d -l ${GO_FILES_NO_VENDOR} | read && echo "ERROR: gofmt's style checks didn't pass" 1>&2 && exit 1 || true
 	@echo "Running golint..."
-	#@golint -set_exit_status ${GO_PKG_FILES} || (echo "ERROR: golint found errors" 1>&2 && exit 1)
+	@golint -set_exit_status ${GO_PKG_FILES} || (echo "ERROR: golint found errors" 1>&2 && exit 1)
 
 docker-build:
 	docker build --tag "shawnsilva/piccolo:latest" .
