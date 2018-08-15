@@ -223,3 +223,81 @@ func TestDoubleLinkedListLength(t *testing.T) {
 		)
 	}
 }
+
+func TestDoubleLinkedListContentsAfterRemove(t *testing.T) {
+	dll := NewDoubleLinkedList()
+	for _, dllItem := range dllTestData.nodes {
+		nNode := NewNode(dllItem.name, dllItem.data)
+		dll.InsertBeginning(nNode)
+	}
+	// dllTestData has 6 entries. we will remove the 3rd ("3" or 2nd index),
+	// first, then last in that order so we need a comparison list we know has
+	// the correct data.
+	dllCompare := NewDoubleLinkedList()
+	for i, dllItem := range dllTestData.nodes {
+		if i != 0 && i != 2 && i != 5 {
+			nNode := NewNode(dllItem.name, dllItem.data)
+			dllCompare.InsertBeginning(nNode)
+		}
+	}
+
+	dll.Delete("3")
+	dll.Remove(dll.First())
+	dll.Remove(dll.Last())
+
+	if dll.Length() != dllCompare.Length() {
+		t.Error(
+			"List with removed Length of: ", dll.Length(),
+			"Should be: ", dllCompare.Length(),
+		)
+	}
+
+	var removedListNode *Node
+	var correctListNode *Node
+	for i := 0; i < dllCompare.Length(); i++ {
+		if removedListNode == nil && correctListNode == nil {
+			removedListNode = dll.First()
+			correctListNode = dllCompare.First()
+		}
+		// check data
+		rnName, rnData := removedListNode.GetData()
+		rnDataStr, _ := rnData.(string)
+		cnName, cnData := correctListNode.GetData()
+		cnDataStr, _ := cnData.(string)
+		if rnName != cnName {
+			t.Error(
+				"Removed Node Name: ", rnName,
+				"Correct Node Name: ", cnName,
+			)
+		}
+		if rnDataStr != cnDataStr {
+			t.Error(
+				"Removed Node Data: ", rnDataStr,
+				"Correct Node Data: ", cnDataStr,
+			)
+		}
+		// Check to make sure nodes prev/next are nil or not at the same places
+		// Actual pointer values will differ.
+		if correctListNode.Prev() == nil || removedListNode.Prev() == nil {
+			if removedListNode.Prev() != nil || correctListNode.Prev() != nil {
+				t.Error(
+					"Correct list Node: ", cnName,
+					"had nil prev pointer and Removed list node didnt",
+				)
+			}
+		}
+
+		if correctListNode.Next() == nil || removedListNode.Next() == nil {
+			if removedListNode.Next() != nil || correctListNode.Next() != nil {
+				t.Error(
+					"Correct list Node: ", cnName,
+					"had nil Next pointer and Removed list node didnt",
+				)
+			}
+		}
+
+		// Get Next Node
+		removedListNode = removedListNode.Next()
+		correctListNode = correctListNode.Next()
+	}
+}
