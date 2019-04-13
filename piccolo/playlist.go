@@ -8,8 +8,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"github.com/shawnsilva/piccolo/log"
-	"github.com/shawnsilva/piccolo/utils"
+	"github.com/jatgam/goutils"
+	"github.com/jatgam/goutils/log"
 )
 
 type (
@@ -22,9 +22,9 @@ type (
 	}
 
 	playlist struct {
-		requestQueue *utils.Queue
-		list         *utils.DoubleLinkedList
-		current      *utils.Node
+		requestQueue *goutils.Queue
+		list         *goutils.DoubleLinkedList
+		current      *goutils.Node
 		usePlaylist  bool
 		playlistPath string
 	}
@@ -37,7 +37,7 @@ type (
 )
 
 func newPlaylist(usePlaylist bool, playlistPath string) *playlist {
-	p := &playlist{requestQueue: utils.NewQueue(), list: utils.NewDoubleLinkedList(),
+	p := &playlist{requestQueue: goutils.NewQueue(), list: goutils.NewDoubleLinkedList(),
 		usePlaylist: usePlaylist, playlistPath: playlistPath}
 	p.loadPlaylist()
 	p.current = p.list.First()
@@ -64,7 +64,7 @@ func (p *playlist) loadPlaylist() error {
 			return fmt.Errorf("Couldn't decode the playlist file")
 		}
 		for _, entry := range filePlaylist.Entries {
-			p.list.InsertEnd(utils.NewNode(entry.VideoID, entry))
+			p.list.InsertEnd(goutils.NewNode(entry.VideoID, entry))
 		}
 	} else {
 		log.Debug("Attempted to load a playlist when use is disabled in config file.")

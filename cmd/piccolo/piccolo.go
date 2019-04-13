@@ -8,10 +8,12 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/shawnsilva/piccolo/log"
+	"github.com/jatgam/goutils"
+	"github.com/jatgam/goutils/log"
+	"github.com/jatgam/goutils/version"
+
 	"github.com/shawnsilva/piccolo/piccolo"
 	"github.com/shawnsilva/piccolo/utils"
-	"github.com/shawnsilva/piccolo/version"
 )
 
 var (
@@ -44,7 +46,7 @@ func init() {
 	*flagConfigFile = filepath.ToSlash(*flagConfigFile)
 
 	if *flagDumpConfigFormat {
-		dumpFilePath := utils.StrConcat([]string{*flagConfigFile, ".sample"})
+		dumpFilePath := goutils.StrConcat([]string{*flagConfigFile, ".sample"})
 		log.WithFields(log.Fields{
 			"dumpFilePath": filepath.FromSlash(dumpFilePath),
 		}).Info("Dumping sample config file.")

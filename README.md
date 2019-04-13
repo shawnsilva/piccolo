@@ -7,3 +7,4 @@ This project is still getting started and is not yet in a working state.
 
 ## Requirements
 * ffmpeg installed and available on the path, or in the same directory piccolo is run from.
+* go 1.12 or higher
