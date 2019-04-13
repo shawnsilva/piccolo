@@ -8,7 +8,7 @@ GIT_BRANCH=$(shell git rev-parse --abbrev-ref HEAD)
 GIT_TAG=$(shell git describe --exact-match HEAD 2>/dev/null || true)
 
 # Create -ldflags for go build, inject Git version info
-LDFLAGS=-ldflags "-X github.com/shawnsilva/piccolo/version.gitVersion=${GIT_VERSION} -X github.com/shawnsilva/piccolo/version.gitBranch=${GIT_BRANCH}"
+LDFLAGS=-ldflags "-X github.com/jatgam/goutils/version.gitVersion=${GIT_VERSION} -X github.com/jatgam/goutils/version.gitBranch=${GIT_BRANCH}"
 
 GO_PKG_FILES=$(shell go list ./... | grep -v vendor)
 GO_FILES_NO_VENDOR = $(shell find . \( ! -regex '.*/\..*' \) -type f -name '*.go' -not -path "./vendor/*")
