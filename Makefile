@@ -20,7 +20,7 @@ deps:
 	@echo "[deps]"
 	@echo
 	@echo "Installing golint"
-	@go get -u github.com/golang/lint/golint
+	@go get -u golang.org/x/lint/golint
 
 # Build piccolo using your current systems architecture as the target
 build: deps
