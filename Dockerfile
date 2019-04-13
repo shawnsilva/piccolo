@@ -1,5 +1,6 @@
 FROM golang:1.12.3-alpine3.9 as builder
-WORKDIR /go/src/github.com/shawnsilva/piccolo/
+ENV GO111MODULE=on
+WORKDIR /tmp/piccolo/
 COPY . .
 RUN apk add --update --no-cache opus-dev git make pkgconfig build-base && \
     make deps build
@@ -16,7 +17,7 @@ RUN apk add --no-cache --update ffmpeg opus bash ca-certificates && \
     chown -R ${APP_USER}:${APP_USER} /opt/${APP_NAME} && \
     rm -rf /usr/share/man /tmp/* /var/tmp/* /var/cache/apk/*
 
-COPY --from=builder /go/src/github.com/shawnsilva/piccolo/build/piccolo /opt/${APP_NAME}/.
+COPY --from=builder /tmp/piccolo/build/piccolo /opt/${APP_NAME}/.
 
 USER ${APP_USER}
 VOLUME /opt/${APP_NAME}/conf
