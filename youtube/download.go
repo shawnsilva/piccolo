@@ -1,7 +1,6 @@
 package youtube
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"path"
@@ -20,8 +19,7 @@ func (yt Manager) DownloadDCAAudio(videoID string) (string, error) {
 	if _, err := os.Stat(filepath.FromSlash(cacheDir)); os.IsNotExist(err) {
 		err := os.MkdirAll(filepath.FromSlash(cacheDir), os.ModeDir)
 		if err != nil {
-			// Handle the error
-			fmt.Println(err)
+			return "", err
 		}
 	}
 
@@ -33,28 +31,24 @@ func (yt Manager) DownloadDCAAudio(videoID string) (string, error) {
 
 	videoInfo, err := ytdl.GetVideoInfo(videoID)
 	if err != nil {
-		// Handle the error
-		fmt.Println(err)
+		return "", err
 	}
 
 	format := videoInfo.Formats.Extremes(ytdl.FormatAudioBitrateKey, true)[0]
 	downloadURL, err := videoInfo.GetDownloadURL(format)
 	if err != nil {
-		// Handle the error
-		fmt.Println(err)
+		return "", err
 	}
 
 	encodingSession, err := dca.EncodeFile(downloadURL.String(), options)
 	if err != nil {
-		// Handle the error
-		fmt.Println(err)
+		return "", err
 	}
 	defer encodingSession.Cleanup()
 
 	output, err := os.Create(filepath.FromSlash(outputFilePath))
 	if err != nil {
-		// Handle the error
-		fmt.Println(err)
+		return "", err
 	}
 
 	io.Copy(output, encodingSession)

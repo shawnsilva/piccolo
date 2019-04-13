@@ -208,7 +208,12 @@ func (p *player) downloadNextSong() {
 		log.WithFields(log.Fields{
 			"song": filepath.FromSlash(songFilePath),
 		}).Debug("Downloading song")
-		p.yt.DownloadDCAAudio(nextSong.VideoID)
+		_, dlErr := p.yt.DownloadDCAAudio(nextSong.VideoID)
+		if dlErr != nil {
+			log.WithFields(log.Fields{
+				"song": nextSong.VideoID,
+			}).Error(dlErr)
+		}
 	} else {
 		log.WithFields(log.Fields{
 			"song": filepath.FromSlash(songFilePath),
