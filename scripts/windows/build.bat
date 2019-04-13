@@ -15,5 +15,7 @@ echo :: Building Piccolo...
 go build^
     -v^
     -ldflags "-X github.com/jatgam/goutils/version.gitVersion=%GIT_VERSION% -X github.com/jatgam/goutils/version.gitBranch=%GIT_BRANCH%"^
+    -gcflags "all=-trimpath=%GOPATH%"^
+    -asmflags "all=-trimpath=%GOPATH%"^
     -o build\piccolo.exe cmd\piccolo\piccolo.go
 if errorlevel 1 exit /B 1

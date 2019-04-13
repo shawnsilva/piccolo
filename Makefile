@@ -9,6 +9,8 @@ GIT_TAG=$(shell git describe --exact-match HEAD 2>/dev/null || true)
 
 # Create -ldflags for go build, inject Git version info
 LDFLAGS=-ldflags "-X github.com/jatgam/goutils/version.gitVersion=${GIT_VERSION} -X github.com/jatgam/goutils/version.gitBranch=${GIT_BRANCH}"
+GCFLAGS=-gcflags "all=-trimpath=${GOPATH}"
+ASMFLAGS=-asmflags "all=-trimpath=${GOPATH}"
 
 GO_PKG_FILES=$(shell go list ./... | grep -v vendor)
 GO_FILES_NO_VENDOR = $(shell find . \( ! -regex '.*/\..*' \) -type f -name '*.go' -not -path "./vendor/*")
@@ -27,20 +29,20 @@ build: deps
 	@echo
 	@echo "[build]"
 	@echo
-	@go build -v ${LDFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
+	@go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/${BINARY} cmd/piccolo/piccolo.go
 
 buildAll: deps
-	env GOOS=linux GOARCH=amd64 go build -v ${LDFLAGS} -o build/linux_amd64/${BINARY} cmd/piccolo/main.go
-	env GOOS=linux GOARCH=386 go build -v ${LDFLAGS} -o build/linux_386/${BINARY} cmd/piccolo/main.go
-	env GOOS=linux GOARCH=arm go build -v ${LDFLAGS} -o build/linux_arm/${BINARY} cmd/piccolo/main.go
-	env GOOS=windows GOARCH=amd64 go build -v ${LDFLAGS} -o build/windows_amd64/${BINARY}.exe cmd/piccolo/main.go
-	env GOOS=windows GOARCH=386 go build -v ${LDFLAGS} -o build/windows_386/${BINARY}.exe cmd/piccolo/main.go
-	env GOOS=darwin GOARCH=amd64 go build -v ${LDFLAGS} -o build/darwin_amd64/${BINARY} cmd/piccolo/main.go
-	env GOOS=darwin GOARCH=386 go build -v ${LDFLAGS} -o build/darwin_386/${BINARY} cmd/piccolo/main.go
-	env GOOS=freebsd GOARCH=amd64 go build -v ${LDFLAGS} -o build/freebsd_amd64/${BINARY} cmd/piccolo/main.go
-	env GOOS=freebsd GOARCH=386 go build -v ${LDFLAGS} -o build/freebsd_386/${BINARY} cmd/piccolo/main.go
-	env GOOS=freebsd GOARCH=arm go build -v ${LDFLAGS} -o build/freebsd_arm/${BINARY} cmd/piccolo/main.go
-	env GOOS=solaris GOARCH=amd64 go build -v ${LDFLAGS} -o build/solaris_amd64/${BINARY} cmd/piccolo/main.go
+	env GOOS=linux GOARCH=amd64 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/linux_amd64/${BINARY} cmd/piccolo/main.go
+	env GOOS=linux GOARCH=386 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/linux_386/${BINARY} cmd/piccolo/main.go
+	env GOOS=linux GOARCH=arm go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/linux_arm/${BINARY} cmd/piccolo/main.go
+	env GOOS=windows GOARCH=amd64 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/windows_amd64/${BINARY}.exe cmd/piccolo/main.go
+	env GOOS=windows GOARCH=386 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/windows_386/${BINARY}.exe cmd/piccolo/main.go
+	env GOOS=darwin GOARCH=amd64 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/darwin_amd64/${BINARY} cmd/piccolo/main.go
+	env GOOS=darwin GOARCH=386 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/darwin_386/${BINARY} cmd/piccolo/main.go
+	env GOOS=freebsd GOARCH=amd64 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/freebsd_amd64/${BINARY} cmd/piccolo/main.go
+	env GOOS=freebsd GOARCH=386 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/freebsd_386/${BINARY} cmd/piccolo/main.go
+	env GOOS=freebsd GOARCH=arm go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/freebsd_arm/${BINARY} cmd/piccolo/main.go
+	env GOOS=solaris GOARCH=amd64 go build -v ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o build/solaris_amd64/${BINARY} cmd/piccolo/main.go
 
 check: deps
 	@echo
