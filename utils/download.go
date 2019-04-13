@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/shawnsilva/piccolo/log"
+	"github.com/jatgam/goutils/log"
 )
 
 // HTTPDownloadToString takes a string of a URL, and attempts to download the

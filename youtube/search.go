@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/shawnsilva/piccolo/log"
+	"github.com/jatgam/goutils/log"
 )
 
 func (yt Manager) createSearchURL(searchString string) (*string, error) {

@@ -8,9 +8,10 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"github.com/shawnsilva/piccolo/log"
+	"github.com/jatgam/goutils/log"
+	"github.com/jatgam/goutils/version"
+
 	"github.com/shawnsilva/piccolo/utils"
-	"github.com/shawnsilva/piccolo/version"
 	"github.com/shawnsilva/piccolo/youtube"
 )
 

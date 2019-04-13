@@ -19,12 +19,8 @@ deps:
 	@echo
 	@echo "[deps]"
 	@echo
-	@echo "Installing dep"
-	@go get -u github.com/golang/dep/cmd/dep
-	@echo "Running dep ensure"
-	@dep ensure
 	@echo "Installing golint"
-	@go get -u github.com/golang/lint/golint
+	@go get -u golang.org/x/lint/golint
 
 # Build piccolo using your current systems architecture as the target
 build: deps

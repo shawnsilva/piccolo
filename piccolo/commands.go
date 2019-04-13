@@ -7,8 +7,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
-	"github.com/shawnsilva/piccolo/log"
-	"github.com/shawnsilva/piccolo/utils"
+	"github.com/jatgam/goutils"
+	"github.com/jatgam/goutils/log"
 )
 
 type (
@@ -55,7 +55,7 @@ func help(b *Bot, m *discordgo.MessageCreate) {
 		cmdList = append(cmdList, b.conf.CommandPrefix+cmdN)
 	}
 	sort.Strings(cmdList)
-	cmdListStr = fmt.Sprintf("```%s```", utils.StrJoin(cmdList, " "))
+	cmdListStr = fmt.Sprintf("```%s```", goutils.StrJoin(cmdList, " "))
 	msg = fmt.Sprintf("<@%s>, **Commands**\n%s\n%s", m.Author.ID, cmdListStr, "https://github.com/shawnsilva/piccolo/wiki/Commands")
 	b.reply(msg, m)
 }

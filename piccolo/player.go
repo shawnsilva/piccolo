@@ -13,7 +13,9 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
 
-	"github.com/shawnsilva/piccolo/log"
+	"github.com/jatgam/goutils"
+	"github.com/jatgam/goutils/log"
+
 	"github.com/shawnsilva/piccolo/utils"
 	"github.com/shawnsilva/piccolo/youtube"
 )
@@ -165,7 +167,7 @@ func (p *player) Skip(numListeners int, requesterID string) string {
 		p.skipSong()
 		return fmt.Sprintf("<@%s> - Since you are all alone, skipping!", requesterID)
 	}
-	if !utils.StringInSlice(requesterID, p.currentSong.skipsRequested) {
+	if !goutils.StringInSlice(requesterID, p.currentSong.skipsRequested) {
 		p.currentSong.skipsRequested = append(p.currentSong.skipsRequested, requesterID)
 	} else {
 		// Already requested a skip on this song, can't requests again
