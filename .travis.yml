@@ -20,7 +20,9 @@ jobs:
       - 'docker'
       before_install: './.travis/main.sh'
       install: skip
-      script: make docker-build
+      script:
+      - make deps check test build
+      - make docker-build
     - stage: deploy
       if: (branch = master) AND (NOT type = pull_request)
       services:
@@ -28,6 +30,7 @@ jobs:
       before_install: './.travis/main.sh'
       install: skip
       script:
+      - make deps check test build
       - make docker-build
       - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi'
       - 'if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then make docker-push; fi'
