@@ -32,6 +32,7 @@ func init() {
 	cmdHandler.addCommand("skipSong", skipSong)
 	cmdHandler.addCommand("savePlaylist", savePlaylist)
 	cmdHandler.addCommand("showPlaylist", printPlaylist)
+	cmdHandler.addCommand("status", getStatus)
 }
 
 func (h commandHandler) addCommand(name string, c command) {
@@ -90,8 +91,17 @@ func play(b *Bot, m *discordgo.MessageCreate) {
 		b.reply(fmt.Sprintf("<@%s> - Sorry, couldn't find a result for: **%s**", m.Author.ID, song), m)
 		return
 	}
-	b.textChannelLookup[m.ChannelID].player.playlist.addSong(m.Author, m.ChannelID, result.ID.VideoID, result.Snippet.Title)
-	go b.textChannelLookup[m.ChannelID].player.downloadNextSong()
+	if result.ID.VideoID == b.textChannelLookup[m.ChannelID].player.currentSong.VideoID {
+		b.reply(fmt.Sprintf("<@%s> - You requested the already playing song: **%s**\nCasting your vote to the void.", m.Author.ID, result.Snippet.Title), m)
+		return
+	}
+	pEntry := &PlaylistEntry{
+		Requester:        m.Author,
+		RequestChannelID: m.ChannelID,
+		Title:            result.Snippet.Title,
+		VideoID:          result.ID.VideoID,
+	}
+	go b.textChannelLookup[m.ChannelID].player.downloadNextSong(pEntry)
 	b.reply(fmt.Sprintf("<@%s> - Enqueued **%s** to be played.", m.Author.ID, result.Snippet.Title), m)
 }
 
@@ -154,5 +164,16 @@ func printPlaylist(b *Bot, m *discordgo.MessageCreate) {
 		}).Error("Failed to find controller from channel id")
 		return
 	}
-	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.textChannelLookup[m.ChannelID].player.playlist), m)
+	currentVideoID := b.textChannelLookup[m.ChannelID].player.currentSong.VideoID
+	b.reply(fmt.Sprintf("<@%s> - **Current Playlist**\n\n%s", m.Author.ID, b.textChannelLookup[m.ChannelID].player.playlist.printPlaylist(currentVideoID)), m)
+}
+
+func getStatus(b *Bot, m *discordgo.MessageCreate) {
+	if _, ok := b.textChannelLookup[m.ChannelID]; !ok {
+		log.WithFields(log.Fields{
+			"channel": m.ChannelID,
+		}).Error("Failed to find controller from channel id")
+		return
+	}
+	b.reply(fmt.Sprintf("<@%s> - **Current Status**\n\n%s", m.Author.ID, b.textChannelLookup[m.ChannelID].player.getCurrentStatus()), m)
 }

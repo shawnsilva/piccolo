@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 
@@ -19,14 +21,16 @@ type (
 		RequestChannelID string          `json:"-"`
 		Title            string          `json:"title"`
 		VideoID          string          `json:"videoID"`
+		TrackDuration    time.Duration   `json:"duration,omitempty"`
 	}
 
 	playlist struct {
-		requestQueue *goutils.Queue
-		list         *goutils.DoubleLinkedList
-		current      *goutils.Node
-		usePlaylist  bool
-		playlistPath string
+		requestQueue          *goutils.Queue
+		list                  *goutils.DoubleLinkedList
+		current               *goutils.Node
+		usePlaylist           bool
+		playlistPath          string
+		readWritePlaylistLock *sync.Mutex
 	}
 
 	// PlaylistJSON is used to handled marshalling and unmarshalling a playlist
@@ -39,13 +43,17 @@ type (
 func newPlaylist(usePlaylist bool, playlistPath string) *playlist {
 	p := &playlist{requestQueue: goutils.NewQueue(), list: goutils.NewDoubleLinkedList(),
 		usePlaylist: usePlaylist, playlistPath: playlistPath}
+	p.readWritePlaylistLock = &sync.Mutex{}
 	p.loadPlaylist()
 	p.current = p.list.First()
+
 	return p
 }
 
 func (p *playlist) loadPlaylist() error {
 	if p.usePlaylist {
+		p.readWritePlaylistLock.Lock()
+		defer p.readWritePlaylistLock.Unlock()
 		playlistFileContents, err := ioutil.ReadFile(filepath.FromSlash(p.playlistPath))
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -76,6 +84,8 @@ func (p *playlist) loadPlaylist() error {
 
 func (p *playlist) savePlaylist() error {
 	if p.usePlaylist {
+		p.readWritePlaylistLock.Lock()
+		defer p.readWritePlaylistLock.Unlock()
 		currentPlaylist := &PlaylistJSON{Entries: []PlaylistEntry{}}
 		currentNode := p.list.First()
 		for {
@@ -106,12 +116,16 @@ func (p *playlist) savePlaylist() error {
 }
 
 func (p *playlist) String() string {
+	return p.printPlaylist("")
+}
+
+func (p *playlist) printPlaylist(currentVideoID string) string {
 	var queueString string
 	var playlistString string
 	queueItem := p.requestQueue.First()
 	count := 1
 	if queueItem == nil {
-		queueString = "\tEmpty"
+		queueString = "    Empty"
 	} else {
 		for {
 			if queueItem == nil {
@@ -121,7 +135,7 @@ func (p *playlist) String() string {
 			if !ok {
 				continue
 			}
-			queueString = queueString + fmt.Sprintf("\t%d. %s - Requester: %s\n",
+			queueString = queueString + fmt.Sprintf("    %d. %s - Requester: %s\n",
 				count, song.Title, song.Requester.Username)
 			queueItem = queueItem.Next()
 			count++
@@ -136,14 +150,19 @@ func (p *playlist) String() string {
 			}
 			_, value := currentNode.GetData()
 			if song, ok := value.(PlaylistEntry); ok {
-				playlistString = playlistString + fmt.Sprintf("\t%d. %s\n",
-					count, song.Title)
+				if currentVideoID == song.VideoID {
+					playlistString = playlistString + fmt.Sprintf("→   %d. %s\n",
+						count, song.Title)
+				} else {
+					playlistString = playlistString + fmt.Sprintf("    %d. %s\n",
+						count, song.Title)
+				}
 				count++
 			}
 			currentNode = currentNode.Next()
 		}
 	} else {
-		playlistString = "\tDisabled"
+		playlistString = "    Disabled"
 	}
 
 	return fmt.Sprintf("**Request Queue:**\n```%s```\n**Playlist:**\n```%s```",
@@ -156,6 +175,16 @@ func (p *playlist) addSong(requester *discordgo.User, channelID string, id strin
 		RequestChannelID: channelID,
 		Title:            title,
 		VideoID:          id,
+	})
+}
+
+func (p *playlist) addRequestedSong(pEntry *PlaylistEntry) {
+	p.requestQueue.Push(PlaylistEntry{
+		Requester:        pEntry.Requester,
+		RequestChannelID: pEntry.RequestChannelID,
+		Title:            pEntry.Title,
+		VideoID:          pEntry.VideoID,
+		TrackDuration:    pEntry.TrackDuration,
 	})
 }
 
@@ -218,4 +247,22 @@ func (p *playlist) peekNextSong() *PlaylistEntry {
 		return &song
 	}
 	return nil
+}
+
+func (p *playlist) modifyPlaylistEntry(videoID string, dataContents PlaylistEntry) error {
+	p.readWritePlaylistLock.Lock()
+	defer p.readWritePlaylistLock.Unlock()
+	playlistEntry := p.list.Find(videoID)
+	if playlistEntry != nil {
+		playlistEntry.SetData(videoID, dataContents)
+	} else {
+		return fmt.Errorf("Couldn't find playlist entry to modify: %s", videoID)
+	}
+	return nil
+}
+
+func (p *playlist) removePlaylistEntry(videoID string) {
+	p.readWritePlaylistLock.Lock()
+	defer p.readWritePlaylistLock.Unlock()
+	p.list.Delete(videoID)
 }

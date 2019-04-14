@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -81,7 +82,7 @@ func (p *player) JoinVoiceChannel() error {
 		return err
 	}
 	p.vc = vc
-	p.downloadNextSong()
+	p.downloadNextSong(nil)
 
 	go p.playLoop()
 	return nil
@@ -91,7 +92,7 @@ func (p *player) playLoop() {
 	for {
 		nextSong, err := p.getNextSongPath()
 		// Download the next song in the background
-		go p.downloadNextSong()
+		go p.downloadNextSong(nil)
 		if err == nil {
 			reader, err := os.Open(filepath.FromSlash(nextSong.fsPath))
 			if err != nil {
@@ -131,7 +132,7 @@ func (p *player) playLoop() {
 		}
 		// Check if the next song is downloaded, if not block until it is. Catches
 		// additions to the request queue.
-		p.downloadNextSong()
+		p.downloadNextSong(nil)
 	}
 }
 
@@ -193,26 +194,77 @@ func (p *player) skipSong() {
 	p.streamDoneChan <- errSkip
 }
 
-func (p *player) downloadNextSong() {
+func (p *player) getCurrentStatus() string {
+	var currentDuration time.Duration
+	var totalDuration time.Duration
+	var percentDur float64
+	if p.stream != nil {
+		currentDuration = p.stream.PlaybackPosition() * 1000000
+		totalDuration = p.currentSong.TrackDuration
+	}
+	if totalDuration > 0 {
+		percentDur = float64(currentDuration) / float64(totalDuration) * 100
+		numHashes := int(50 * (percentDur / 100))
+		percentLine := strings.Repeat("#", numHashes)
+		percentLine = fmt.Sprintf("|%s%s|", percentLine, strings.Repeat("-", 50-numHashes))
+
+		return fmt.Sprintf("**Playing:** %s\n**Time:** %s of %s\n```%s [%.2f%%]```", p.currentSong.Title, currentDuration, totalDuration, percentLine, percentDur)
+	}
+	return fmt.Sprintf("**Playing:** %s\n**Time:** %s of UNKNOWN", p.currentSong.Title, currentDuration)
+}
+
+func (p *player) downloadNextSong(pEntry *PlaylistEntry) {
 	p.downloadLock.Lock()
 	defer p.downloadLock.Unlock()
 
-	nextSong := p.playlist.peekNextSong()
+	var nextSong *PlaylistEntry
+	if pEntry == nil {
+		nextSong = p.playlist.peekNextSong()
+	} else {
+		nextSong = pEntry
+	}
+
 	if nextSong == nil {
-		log.Warn("Can't download next song, playlist is empty!")
+		log.Warn("Can't download next song, None Available!")
 		return
+	}
+	if p.currentSong != nil {
+		if nextSong.VideoID == p.currentSong.VideoID {
+			log.WithFields(log.Fields{
+				"videoID": nextSong.VideoID,
+			}).Warn("Attempted to download the current song.")
+		}
 	}
 
 	songFilePath := path.Join(p.yt.YTCacheDir, nextSong.VideoID+".dca")
-	if _, err := os.Stat(filepath.FromSlash(songFilePath)); os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.FromSlash(songFilePath)); os.IsNotExist(err) || (nextSong.Requester != nil && nextSong.TrackDuration.String() == "0s") {
 		log.WithFields(log.Fields{
 			"song": filepath.FromSlash(songFilePath),
 		}).Debug("Downloading song")
-		_, dlErr := p.yt.DownloadDCAAudio(nextSong.VideoID)
+		_, encodeDuration, dlErr := p.yt.DownloadDCAAudio(nextSong.VideoID)
 		if dlErr != nil {
 			log.WithFields(log.Fields{
 				"song": nextSong.VideoID,
 			}).Error(dlErr)
+		} else {
+			log.WithFields(log.Fields{
+				"song":     filepath.FromSlash(songFilePath),
+				"duration": encodeDuration,
+			}).Debug("Downloaded Song")
+			// Separate operations for playlist entry vs request
+			if nextSong.Requester == nil {
+				modifyError := p.playlist.modifyPlaylistEntry(nextSong.VideoID, PlaylistEntry{Title: nextSong.Title, VideoID: nextSong.VideoID, TrackDuration: encodeDuration})
+				if modifyError != nil {
+					log.WithFields(log.Fields{
+						"song": nextSong.VideoID,
+					}).Error(modifyError)
+				} else {
+					p.playlist.savePlaylist()
+				}
+			} else {
+				nextSong.TrackDuration = encodeDuration
+				p.playlist.addRequestedSong(nextSong)
+			}
 		}
 	} else {
 		log.WithFields(log.Fields{
