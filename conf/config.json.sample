@@ -8,6 +8,7 @@
         "ytdl_path": "",
         "save_videos": true,
         "cache_dir": "video_cache",
+        "cache_size_mb": 1024,
         "use_playlist": true,
         "playlist_path": "conf/playlist.json",
         "auto_pause": true,

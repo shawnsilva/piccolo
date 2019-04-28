@@ -8,8 +8,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/gorilla/websocket v1.2.0 h1:VJtLvh6VQym50czpZzx07z/kw9EgAxI3x1ZB8taTMQQ=
 github.com/gorilla/websocket v1.2.0/go.mod h1:E7qHFY5m1UJ88s3WnNqhKjPHQ0heANvMoAMk2YaljkQ=
-github.com/jatgam/goutils v0.1.0 h1:QDjXxvarLLME8xcxls+5gsACjLiDsQfhIPkxllULEX4=
-github.com/jatgam/goutils v0.1.0/go.mod h1:1z730wgc18GOvqmZf8H95/sDnYgqvZCzz5EMsmLVQVM=
+github.com/jatgam/goutils v0.1.1 h1:1yyLw5oneryzJ5iiB6L9fzgRDYvG9iplQB+iRaiBA8g=
+github.com/jatgam/goutils v0.1.1/go.mod h1:1z730wgc18GOvqmZf8H95/sDnYgqvZCzz5EMsmLVQVM=
 github.com/jonas747/dca v0.0.0-20171004024810-01f9985f4a26 h1:NKu1iYZ8bas0oQXjZYca7KpWDPyP+JZNUCt1gFoUJ5c=
 github.com/jonas747/dca v0.0.0-20171004024810-01f9985f4a26/go.mod h1:rxjYX9OJU81unMxQDHChU/lAiOhlY9MV+faPX/NmwLk=
 github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 h1:Kyv+zTfWIGRNaz/4+lS+CxvuKVZSKFz/6G8E3BKKBRs=

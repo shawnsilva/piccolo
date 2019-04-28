@@ -13,6 +13,7 @@ type BotConfig struct {
 	YtDlPath               string  `json:"ytdl_path"`
 	SaveVideos             bool    `json:"save_videos"`
 	CacheDir               string  `json:"cache_dir"`
+	CacheSizeMB            int64   `json:"cache_size_mb"`
 	UsePlaylist            bool    `json:"use_playlist"`
 	PlaylistPath           string  `json:"playlist_path"`
 	AutoPause              bool    `json:"auto_pause"`
@@ -44,6 +45,7 @@ var (
 		Volume:                 0.35,
 		SaveVideos:             true,
 		CacheDir:               "video_cache",
+		CacheSizeMB:            1024,
 		UsePlaylist:            true,
 		PlaylistPath:           "conf/playlist.json",
 		AutoPause:              true,
@@ -89,8 +91,5 @@ func LoadConfig(filename string) (*Config, error) {
 func DumpConfigFormat(filename string) error {
 	jsonConf, _ := json.MarshalIndent(defaultConfig, "", "    ")
 	err := ioutil.WriteFile(filepath.FromSlash(filename), jsonConf, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

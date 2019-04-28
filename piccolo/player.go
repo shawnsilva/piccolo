@@ -35,9 +35,9 @@ type (
 
 		currentSong *songAndPath
 
-		dg *discordgo.Session
-
-		downloadLock *sync.Mutex
+		dg             *discordgo.Session
+		limitCacheSize bool
+		downloadLock   *sync.Mutex
 	}
 
 	songAndPath struct {
@@ -54,6 +54,11 @@ func newPlayer(confpointer *utils.Config, guildID string, voiceChID string, yout
 	p := &player{conf: confpointer, guildID: guildID, voiceChannelID: voiceChID, yt: youtube, dg: discordSession}
 	p.playlist = newPlaylist(p.conf.Bot.UsePlaylist, p.conf.Bot.PlaylistPath)
 	p.downloadLock = downloadLock
+	if confpointer.Bot.CacheSizeMB > 0 {
+		p.limitCacheSize = true
+	} else {
+		p.limitCacheSize = false
+	}
 	p.streamDoneChan = make(chan error)
 	return p
 }
@@ -130,6 +135,25 @@ func (p *player) playLoop() {
 			}
 			p.vc.Speaking(false)
 		}
+		if p.limitCacheSize {
+			currentCacheSize, err := goutils.DirSizeMB(p.yt.YTCacheDir)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Error Determing Current Cache Size")
+			} else {
+				if currentCacheSize > float64(p.conf.Bot.CacheSizeMB) {
+					p.downloadLock.Lock()
+					deleteErr := goutils.DeleteOldestFileUntilDirUnderSize(p.yt.YTCacheDir, float64(p.conf.Bot.CacheSizeMB))
+					if deleteErr != nil {
+						log.WithFields(log.Fields{
+							"error": deleteErr,
+						}).Error("Error Deleting files from cache")
+					}
+					p.downloadLock.Unlock()
+				}
+			}
+		}
 		// Check if the next song is downloaded, if not block until it is. Catches
 		// additions to the request queue.
 		p.downloadNextSong(nil)
@@ -190,6 +214,8 @@ func (p *player) Skip(numListeners int, requesterID string) string {
 }
 
 func (p *player) skipSong() {
+	p.downloadLock.Lock()
+	defer p.downloadLock.Unlock()
 	p.Pause()
 	p.streamDoneChan <- errSkip
 }
@@ -270,6 +296,12 @@ func (p *player) downloadNextSong(pEntry *PlaylistEntry) {
 		log.WithFields(log.Fields{
 			"song": filepath.FromSlash(songFilePath),
 		}).Debug("Song already downloaded")
+		dateUpdateErr := goutils.UpdateFileModifiedTime(filepath.FromSlash(songFilePath), time.Now())
+		if dateUpdateErr != nil {
+			log.WithFields(log.Fields{
+				"song": filepath.FromSlash(songFilePath),
+			}).Warn("Failed to update song modified time")
+		}
 	}
 }
 
